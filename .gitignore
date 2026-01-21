@@ -1,6 +1,3 @@
-# Backkpup folder
-.bkp/
-
 # Dependencies
 node_modules/
 .pnp
