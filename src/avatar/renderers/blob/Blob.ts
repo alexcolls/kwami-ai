@@ -1,11 +1,12 @@
+import type {
+  Vector3,
+  Texture} from 'three';
 import {
   Mesh,
   Color,
   PointLight,
   Vector2,
-  Vector3,
   Raycaster,
-  Texture,
   AlwaysStencilFunc,
   KeepStencilOp,
   ReplaceStencilOp,

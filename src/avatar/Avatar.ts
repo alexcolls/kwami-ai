@@ -1,24 +1,27 @@
-import type { AvatarConfig, KwamiState } from '../types'
+import type { AvatarConfig, KwamiState, CrystalFormationSelection } from '../types'
 import type { BlobSkinSelection } from './renderers/blob/types'
 import { Scene } from './scene'
 import { Blob } from './renderers/blob'
+import { Crystal } from './renderers/crystal'
 import { KwamiAudio } from './audio'
 import { logger } from '../utils/logger'
 
 /**
  * Avatar - Manages the visual representation of Kwami
  * 
- * Supports different renderers (blob, future: humanoid, etc.)
- * The blob is the default and only current renderer.
+ * Supports different renderers (blob, crystal, future: humanoid, etc.)
+ * The blob is the default renderer; crystal is a new geometric alternative.
  */
 export class Avatar {
   private canvas: HTMLCanvasElement
   private config: AvatarConfig
   private scene: Scene
   private blob: Blob | null = null
+  private crystal: Crystal | null = null
   private audio: KwamiAudio
   private currentState: KwamiState = 'idle'
   private resizeObserver: ResizeObserver | null = null
+  private currentRenderer: 'blob' | 'crystal' = 'blob'
 
   constructor(canvas: HTMLCanvasElement, config?: AvatarConfig) {
     this.canvas = canvas
@@ -41,10 +44,15 @@ export class Avatar {
     const rendererType = this.config.renderer ?? 'blob'
     
     if (rendererType === 'blob') {
+      this.currentRenderer = 'blob'
       this.initBlobRenderer()
+    } else if (rendererType === 'crystal') {
+      this.currentRenderer = 'crystal'
+      this.initCrystalRenderer()
     } else {
       // Future: Support other renderer types
       logger.warn(`Renderer type "${rendererType}" not supported, falling back to blob`)
+      this.currentRenderer = 'blob'
       this.initBlobRenderer()
     }
   }
@@ -79,13 +87,41 @@ export class Avatar {
     this.blob.enableClickInteraction()
   }
 
+  private initCrystalRenderer(): void {
+    const crystalConfig = this.config.crystal ?? {}
+    
+    this.crystal = new Crystal({
+      scene: this.scene.scene,
+      camera: this.scene.camera,
+      renderer: this.scene.renderer,
+      audio: this.audio,
+      formation: crystalConfig.formation,
+      shards: crystalConfig.shards,
+      core: crystalConfig.core,
+      colors: crystalConfig.colors,
+      audioEffects: crystalConfig.audioEffects,
+      particleCount: crystalConfig.particleCount,
+      scale: crystalConfig.scale,
+      rotation: crystalConfig.rotation,
+    })
+
+    // Add crystal group to scene
+    this.scene.scene.add(this.crystal.getMesh())
+
+    // Enable click interaction by default
+    this.crystal.enableClickInteraction()
+  }
+
   private setupResizeHandling(): void {
     this.resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect
         if (width > 0 && height > 0) {
           this.scene.resize(width, height)
-          this.blob?.position.refresh()
+          // Only blob has position management; crystal is centered
+          if (this.currentRenderer === 'blob') {
+            this.blob?.position.refresh()
+          }
         }
       }
     })
@@ -102,7 +138,8 @@ export class Avatar {
     const previousState = this.currentState
     this.currentState = state
     
-    if (this.blob) {
+    // Handle state for blob renderer
+    if (this.currentRenderer === 'blob' && this.blob) {
       switch (state) {
         case 'idle':
           if (previousState === 'listening') this.blob.stopListening()
@@ -113,6 +150,25 @@ export class Avatar {
           break
         case 'thinking':
           this.blob.startThinking()
+          break
+        case 'speaking':
+          // Speaking state is driven by audio automatically
+          break
+      }
+    }
+    
+    // Handle state for crystal renderer
+    if (this.currentRenderer === 'crystal' && this.crystal) {
+      switch (state) {
+        case 'idle':
+          if (previousState === 'listening') this.crystal.stopListening()
+          if (previousState === 'thinking') this.crystal.stopThinking()
+          break
+        case 'listening':
+          this.crystal.startListening()
+          break
+        case 'thinking':
+          this.crystal.startThinking()
           break
         case 'speaking':
           // Speaking state is driven by audio automatically
@@ -131,14 +187,28 @@ export class Avatar {
   }
 
   // ===========================================================================
-  // BLOB-SPECIFIC METHODS (delegated to blob renderer)
+  // RENDERER ACCESS METHODS
   // ===========================================================================
+
+  /**
+   * Get the current renderer type
+   */
+  getRendererType(): 'blob' | 'crystal' {
+    return this.currentRenderer
+  }
 
   /**
    * Get the blob instance (for direct control)
    */
   getBlob(): Blob | null {
     return this.blob
+  }
+
+  /**
+   * Get the crystal instance (for direct control)
+   */
+  getCrystal(): Crystal | null {
+    return this.crystal
   }
 
   /**
@@ -219,10 +289,14 @@ export class Avatar {
   }
 
   /**
-   * Randomize blob appearance
+   * Randomize avatar appearance
    */
   randomize(): void {
-    this.blob?.setRandomBlob()
+    if (this.currentRenderer === 'blob') {
+      this.blob?.setRandomBlob()
+    } else if (this.currentRenderer === 'crystal') {
+      this.crystal?.setRandomCrystal()
+    }
   }
 
   /**
@@ -232,6 +306,9 @@ export class Avatar {
     if (this.blob) {
       this.blob.onConversationToggle = callback
     }
+    if (this.crystal) {
+      this.crystal.onConversationToggle = callback
+    }
   }
 
   /**
@@ -240,6 +317,9 @@ export class Avatar {
   onDoubleClick(callback: () => void | Promise<void>): void {
     if (this.blob) {
       this.blob.onDoubleClick = callback
+    }
+    if (this.crystal) {
+      this.crystal.onDoubleClick = callback
     }
   }
 
@@ -258,10 +338,60 @@ export class Avatar {
   }
 
   /**
-   * Export blob as GLTF file
+   * Export avatar as GLTF file
    */
   exportGLTF(): void {
-    this.blob?.exportGLTF()
+    if (this.currentRenderer === 'blob') {
+      this.blob?.exportGLTF()
+    } else if (this.currentRenderer === 'crystal') {
+      this.crystal?.exportGLTF()
+    }
+  }
+
+  // ===========================================================================
+  // CRYSTAL-SPECIFIC METHODS (delegated to crystal renderer)
+  // ===========================================================================
+
+  /**
+   * Set crystal formation (constellation, helix, vortex)
+   */
+  setFormation(selection: CrystalFormationSelection): void {
+    this.crystal?.setFormation(selection)
+  }
+
+  /**
+   * Set crystal colors (primary, secondary, accent)
+   */
+  setCrystalColors(primary: string, secondary: string, accent: string): void {
+    this.crystal?.setColors(primary, secondary, accent)
+  }
+
+  /**
+   * Set crystal core colors
+   */
+  setCoreColors(innerColor: string, outerColor: string): void {
+    this.crystal?.setCoreColors(innerColor, outerColor)
+  }
+
+  /**
+   * Set crystal glow intensity
+   */
+  setGlowIntensity(intensity: number): void {
+    this.crystal?.setGlowIntensity(intensity)
+  }
+
+  /**
+   * Set crystal shard count
+   */
+  setShardCount(count: number): void {
+    this.crystal?.setShardCount(count)
+  }
+
+  /**
+   * Set crystal audio reactivity
+   */
+  setAudioReactivity(value: number): void {
+    this.crystal?.setAudioReactivity(value)
   }
 
   /**
@@ -270,6 +400,7 @@ export class Avatar {
   dispose(): void {
     this.resizeObserver?.disconnect()
     this.blob?.dispose()
+    this.crystal?.dispose()
     this.audio.dispose()
     this.scene.dispose()
   }

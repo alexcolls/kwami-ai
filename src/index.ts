@@ -6,7 +6,7 @@
 export { Kwami } from './Kwami'
 
 // Modules
-export { Avatar, Scene, Blob, BlobPosition, KwamiAudio, createSkin, defaultBlobConfig } from './avatar'
+export { Avatar, Scene, Blob, BlobPosition, Crystal, KwamiAudio, createSkin, defaultBlobConfig, defaultCrystalConfig } from './avatar'
 export { Agent } from './agent'
 export { Persona } from './persona'
 export { Memory } from './memory'
@@ -17,7 +17,63 @@ export { SkillManager } from './skills'
 export { LiveKitAdapter } from './agent'
 export { ZepAdapter } from './memory'
 
-// Types
+// Voice Pipeline (NEW)
+export { VoiceSession } from './agent'
+export type { VoiceSessionState, VoiceSessionEvents, VoiceSessionOptions } from './agent'
+
+// Voice Types (comprehensive)
+export type {
+  // VAD
+  VADConfig,
+  VADProvider,
+  // STT
+  STTConfig,
+  STTProvider,
+  STTInferenceProvider,
+  STTPluginProvider,
+  STTLanguage,
+  // LLM
+  LLMConfig,
+  LLMProvider,
+  LLMInferenceProvider,
+  LLMPluginProvider,
+  OpenAIModel,
+  GeminiModel,
+  // TTS
+  TTSConfig,
+  TTSProvider,
+  TTSInferenceProvider,
+  TTSPluginProvider,
+  PresetVoice,
+  // Realtime
+  RealtimeConfig,
+  RealtimeProvider,
+  RealtimeModality,
+  // Enhancements
+  TurnDetectionConfig,
+  NoiseCancellationConfig,
+  VoiceEnhancementsConfig,
+  // Metrics
+  VoiceLatencyMetrics,
+  VoicePipelineMetrics,
+  // Pipeline
+  VoicePipelineConfig,
+  VoicePipelinePreset,
+  VoicePipelineType,
+} from './agent'
+
+// Voice Utilities
+export {
+  getVoicePipelinePreset,
+  buildSTTDescriptor,
+  buildTTSDescriptor,
+  buildLLMDescriptor,
+  PRESET_VOICES,
+  findPresetVoice,
+  filterPresetVoices,
+} from './agent'
+
+// Core Types
 export type {
   // Core
   KwamiConfig,
@@ -33,6 +89,10 @@ export type {
   BlobSkinSelection,
   BlobSkin,
   TricolorSubtype,
+  CrystalConfig,
+  CrystalFormation,
+  CrystalCoreStyle,
+  CrystalFormationSelection,
   SceneConfig,
   SceneBackgroundConfig,
   CameraConfig,
@@ -76,3 +136,17 @@ export type {
   TricolorSkinConfig,
   BlobAudioEffects,
 } from './avatar/renderers/blob/types'
+
+// Re-export crystal-specific types
+export type {
+  CrystalOptions,
+  CrystalOptionsConfig,
+  ShardConfig,
+  CoreConfig,
+  CrystalAudioEffects,
+  CoreStyle,
+  FormationConfig,
+} from './avatar/renderers/crystal/types'
+
+// Adapter types
+export type { LiveKitAdapterConfig, AgentAdapter, AdapterFactory } from './agent'
