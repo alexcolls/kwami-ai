@@ -1,4 +1,6 @@
 import type { AgentPipeline, LiveKitConfig } from '../../types'
+import type { VoicePipelineConfig } from '../voice/types'
+import type { VoiceSessionEvents } from '../voice/VoiceSession'
 
 /**
  * Agent Adapter Interface
@@ -31,18 +33,93 @@ export interface AgentAdapter {
  * LiveKit-specific adapter configuration
  */
 export interface LiveKitAdapterConfig extends LiveKitConfig {
-  // Room connection options
+  // ---------------------------------------------------------------------------
+  // Connection Options
+  // ---------------------------------------------------------------------------
+  
+  /** Room connection options */
   autoSubscribe?: boolean
+  /** Enable dynacast for adaptive bitrate */
   dynacast?: boolean
+  /** Enable adaptive streaming */
   adaptiveStream?: boolean
+  /** Reconnection attempts */
+  reconnectAttempts?: number
+  /** Auto-reconnect on disconnect */
+  autoReconnect?: boolean
+
+  // ---------------------------------------------------------------------------
+  // Audio Options (Legacy - prefer voice.enhancements)
+  // ---------------------------------------------------------------------------
   
-  // Audio options
+  /** Enable echo cancellation */
   echoCancellation?: boolean
+  /** Enable noise suppression */
   noiseSuppression?: boolean
+  /** Enable auto gain control */
   autoGainControl?: boolean
+
+  // ---------------------------------------------------------------------------
+  // Voice Pipeline Configuration (NEW)
+  // ---------------------------------------------------------------------------
   
-  // API key for token endpoint
+  /** Complete voice pipeline configuration */
+  voice?: VoicePipelineConfig
+
+  // ---------------------------------------------------------------------------
+  // Session Options
+  // ---------------------------------------------------------------------------
+  
+  /** Agent instructions/system prompt */
+  instructions?: string
+  /** User away timeout in seconds */
+  userAwayTimeout?: number
+  /** Minimum consecutive speech delay */
+  minConsecutiveSpeechDelay?: number
+
+  // ---------------------------------------------------------------------------
+  // Room I/O Options
+  // ---------------------------------------------------------------------------
+  
+  /** Enable text input */
+  textInputEnabled?: boolean
+  /** Enable audio input */
+  audioInputEnabled?: boolean
+  /** Enable video input */
+  videoInputEnabled?: boolean
+  /** Enable text output (transcription) */
+  textOutputEnabled?: boolean
+  /** Enable audio output */
+  audioOutputEnabled?: boolean
+  /** Sync transcription with audio */
+  syncTranscription?: boolean
+
+  // ---------------------------------------------------------------------------
+  // Participant Options
+  // ---------------------------------------------------------------------------
+  
+  /** Linked participant identity */
+  participantIdentity?: string
+  /** Close session when participant disconnects */
+  closeOnDisconnect?: boolean
+  /** Delete room when session ends */
+  deleteRoomOnClose?: boolean
+
+  // ---------------------------------------------------------------------------
+  // Events
+  // ---------------------------------------------------------------------------
+  
+  /** Voice session event callbacks */
+  events?: VoiceSessionEvents
+
+  // ---------------------------------------------------------------------------
+  // API Authentication (for local dev / token generation)
+  // ---------------------------------------------------------------------------
+  
+  /** API key for token endpoint or local generation */
   apiKey?: string
+  /** API Secret for local token generation (dev only - NEVER in production) */
+  apiSecret?: string
 }
 
 /**
