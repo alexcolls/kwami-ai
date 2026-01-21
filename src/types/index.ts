@@ -2,6 +2,9 @@
 // KWAMI TYPES
 // =============================================================================
 
+// Import types used in this file
+import type { VoicePipelineConfig as VoicePipelineConfigType } from '../agent/voice/types'
+
 // Re-export voice types for convenience
 export type {
   // Voice Pipeline Types
@@ -356,13 +359,23 @@ export interface AgentPipeline {
 }
 
 export interface PipelineConnectOptions {
+  /** Unique identifier for this Kwami instance */
+  kwamiId?: string
+  /** Display name for this Kwami */
+  kwamiName?: string
+  /** LiveKit room name (auto-generated if not provided) */
   roomName?: string
+  /** LiveKit token */
   token?: string
-  persona?: {
-    name?: string
+  /** Persona configuration (personality, system prompt, traits) */
+  persona?: PersonaConfig & {
     systemPrompt?: string
   }
+  /** Voice pipeline configuration (STT, LLM, TTS) */
+  voice?: VoicePipelineConfigType
+  /** Memory context */
   memory?: MemoryContext
+  /** Tool definitions */
   tools?: ToolDefinition[]
 }
 
