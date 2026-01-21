@@ -1,0 +1,67 @@
+/* =====================================================
+   AVATAR PANEL - Component Styles
+   ===================================================== */
+
+/* Skin Selector */
+.skin-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.skin-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: var(--surface-1);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skin-option:hover {
+  background: var(--surface-2);
+  transform: translateY(-2px);
+}
+
+.skin-option.active {
+  background: var(--accent-glow);
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.skin-option input {
+  display: none;
+}
+
+.skin-preview {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.skin-preview.poles {
+  background: linear-gradient(180deg, #ff0066 0%, #00ff66 50%, #6600ff 100%);
+}
+
+.skin-preview.donut {
+  background: conic-gradient(#ff0066, #00ff66, #6600ff, #ff0066);
+}
+
+.skin-preview.vintage {
+  background: radial-gradient(circle, #ff0066, #00ff66, #6600ff);
+}
+
+.skin-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.skin-option.active .skin-label {
+  color: var(--text-primary);
+}

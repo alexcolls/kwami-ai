@@ -1,0 +1,58 @@
+/* =====================================================
+   GLOBAL STYLES - Base, reset, utilities
+   ===================================================== */
+
+@import './variables.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #060810;
+}
+
+#app,
+#kwami-root {
+  height: 100%;
+  width: 100%;
+}
+
+#kwami-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* =====================================================
+   UTILITIES
+   ===================================================== */
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

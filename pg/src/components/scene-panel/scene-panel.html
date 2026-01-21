@@ -1,0 +1,133 @@
+<div class="panel-header">
+  <iconify-icon icon="ph:sun-dim-duotone" class="panel-icon"></iconify-icon>
+  <h2>Scene</h2>
+</div>
+
+<div class="panel-body">
+  <!-- Camera -->
+  <section class="panel-section">
+    <h3>Camera</h3>
+    <div class="slider-group">
+      <div class="control-row">
+        <label>FOV</label>
+        <input type="range" id="camera-fov" min="30" max="150" step="1" value="100">
+        <span class="value">100</span>
+      </div>
+      <div class="control-row">
+        <label>Distance</label>
+        <input type="range" id="camera-distance" min="2" max="20" step="0.5" value="6">
+        <span class="value">6.0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lighting -->
+  <section class="panel-section">
+    <h3>Lighting</h3>
+    <div class="slider-group">
+      <div class="control-row">
+        <label>Top</label>
+        <input type="range" id="light-top" min="0" max="2" step="0.1" value="0.7">
+        <span class="value">0.7</span>
+      </div>
+      <div class="control-row">
+        <label>Bottom</label>
+        <input type="range" id="light-bottom" min="0" max="2" step="0.1" value="0.4">
+        <span class="value">0.4</span>
+      </div>
+      <div class="control-row">
+        <label>Ambient</label>
+        <input type="range" id="light-ambient" min="0" max="2" step="0.1" value="1.0">
+        <span class="value">1.0</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Background -->
+  <section class="panel-section">
+    <h3>Background Type</h3>
+    <div class="bg-type-selector">
+      <label class="bg-option active">
+        <input type="radio" name="bg-type" value="gradient" checked>
+        <iconify-icon icon="ph:gradient-duotone"></iconify-icon>
+        <span>Gradient</span>
+      </label>
+      <label class="bg-option">
+        <input type="radio" name="bg-type" value="solid">
+        <iconify-icon icon="ph:drop-duotone"></iconify-icon>
+        <span>Solid</span>
+      </label>
+      <label class="bg-option">
+        <input type="radio" name="bg-type" value="transparent">
+        <iconify-icon icon="ph:checkerboard-duotone"></iconify-icon>
+        <span>None</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Gradient Config -->
+  <section class="panel-section" id="gradient-config">
+    <h3>Gradient Colors</h3>
+    <div class="color-grid">
+      <div class="control-group">
+        <label>Start</label>
+        <input type="color" id="gradient-start" value="#0a0a1a">
+      </div>
+      <div class="control-group">
+        <label>Mid</label>
+        <input type="color" id="gradient-mid" value="#1a1a3a">
+      </div>
+      <div class="control-group">
+        <label>End</label>
+        <input type="color" id="gradient-end" value="#0a0a1a">
+      </div>
+    </div>
+    <div class="slider-group" style="margin-top: 12px">
+      <div class="control-row">
+        <label>Direction</label>
+        <select id="gradient-direction" class="select-control">
+          <option value="radial" selected>Radial</option>
+          <option value="vertical">Vertical</option>
+          <option value="horizontal">Horizontal</option>
+          <option value="diagonal">Diagonal</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solid Color Config -->
+  <section class="panel-section hidden" id="solid-config">
+    <h3>Background Color</h3>
+    <div class="color-grid">
+      <div class="control-group" style="flex: 1">
+        <label>Color</label>
+        <input type="color" id="solid-color" value="#0a0a1a">
+      </div>
+    </div>
+  </section>
+
+  <!-- Presets -->
+  <section class="panel-section">
+    <h3>Presets</h3>
+    <div class="preset-grid">
+      <button class="preset-btn" data-preset="midnight" title="Midnight">
+        <span class="preset-preview" style="background: radial-gradient(#0a0a1a, #1a1a3a)"></span>
+      </button>
+      <button class="preset-btn" data-preset="sunset" title="Sunset">
+        <span class="preset-preview" style="background: radial-gradient(#1a0a1a, #3a1a2a)"></span>
+      </button>
+      <button class="preset-btn" data-preset="ocean" title="Ocean">
+        <span class="preset-preview" style="background: radial-gradient(#0a1a2a, #1a2a3a)"></span>
+      </button>
+      <button class="preset-btn" data-preset="forest" title="Forest">
+        <span class="preset-preview" style="background: radial-gradient(#0a1a0a, #1a2a1a)"></span>
+      </button>
+      <button class="preset-btn" data-preset="cyber" title="Cyber">
+        <span class="preset-preview" style="background: radial-gradient(#1a0a2a, #0a1a3a)"></span>
+      </button>
+      <button class="preset-btn" data-preset="warm" title="Warm">
+        <span class="preset-preview" style="background: radial-gradient(#2a1a0a, #3a2a1a)"></span>
+      </button>
+    </div>
+  </section>
+</div>

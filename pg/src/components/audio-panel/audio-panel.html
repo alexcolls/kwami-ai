@@ -1,0 +1,94 @@
+<div class="panel-header">
+  <iconify-icon icon="ph:waveform-duotone" class="panel-icon"></iconify-icon>
+  <h2>Audio</h2>
+</div>
+
+<div class="panel-body">
+  <!-- Volume -->
+  <section class="panel-section">
+    <h3>Volume</h3>
+    <div class="slider-group">
+      <div class="control-row">
+        <label>
+          <iconify-icon icon="ph:speaker-high-duotone"></iconify-icon>
+        </label>
+        <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+        <span class="value">100%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audio Reactivity -->
+  <section class="panel-section">
+    <h3>Audio Reactivity</h3>
+    <div class="slider-group">
+      <div class="control-row">
+        <label>Reactivity</label>
+        <input type="range" id="audio-reactivity" min="0" max="5" step="0.1" value="1">
+        <span class="value">1.0</span>
+      </div>
+      <div class="control-row">
+        <label>Sensitivity</label>
+        <input type="range" id="audio-sensitivity" min="0" max="0.3" step="0.005" value="0.1">
+        <span class="value">0.100</span>
+      </div>
+      <div class="control-row">
+        <label>Breathing</label>
+        <input type="range" id="audio-breathing" min="0" max="0.2" step="0.005" value="0.05">
+        <span class="value">0.050</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Frequency Response -->
+  <section class="panel-section">
+    <h3>Frequency Response</h3>
+    <div class="slider-group">
+      <div class="control-row">
+        <label>Bass Spike</label>
+        <input type="range" id="bass-spike" min="0" max="2" step="0.05" value="1">
+        <span class="value">1.00</span>
+      </div>
+      <div class="control-row">
+        <label>Mid Spike</label>
+        <input type="range" id="mid-spike" min="0" max="2" step="0.05" value="0.5">
+        <span class="value">0.50</span>
+      </div>
+      <div class="control-row">
+        <label>High Spike</label>
+        <input type="range" id="high-spike" min="0" max="2" step="0.05" value="0.3">
+        <span class="value">0.30</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Microphone -->
+  <section class="panel-section">
+    <h3>Microphone</h3>
+    <div class="mic-controls">
+      <button class="action-btn" id="mic-toggle">
+        <iconify-icon icon="ph:microphone-duotone" id="mic-icon"></iconify-icon>
+        <span id="mic-label">Start Mic</span>
+      </button>
+      <div class="mic-status">
+        <span class="status-indicator" id="mic-status"></span>
+        <span class="status-text" id="mic-status-text">Inactive</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Audio Visualizer -->
+  <section class="panel-section">
+    <h3>Visualizer</h3>
+    <div class="visualizer-container">
+      <canvas id="audio-visualizer" width="240" height="60"></canvas>
+    </div>
+    <div class="checkbox-row">
+      <label class="checkbox-label">
+        <input type="checkbox" id="show-visualizer" checked>
+        <span class="checkbox-custom"></span>
+        Enable Visualizer
+      </label>
+    </div>
+  </section>
+</div>

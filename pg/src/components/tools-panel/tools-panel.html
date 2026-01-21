@@ -1,0 +1,147 @@
+<div class="panel-header">
+  <iconify-icon icon="ph:wrench-duotone" class="panel-icon"></iconify-icon>
+  <h2>Tools</h2>
+</div>
+
+<div class="panel-body">
+  <!-- Registered Tools -->
+  <section class="panel-section">
+    <h3>Registered Tools</h3>
+    <div class="tools-list" id="tools-list">
+      <div class="tools-empty">
+        <iconify-icon icon="ph:toolbox-duotone"></iconify-icon>
+        <span>No tools registered</span>
+      </div>
+    </div>
+    <button class="action-btn" id="refresh-tools-btn" style="margin-top: 8px">
+      <iconify-icon icon="ph:arrows-clockwise-duotone"></iconify-icon>
+      Refresh
+    </button>
+  </section>
+
+  <!-- Add Custom Tool -->
+  <section class="panel-section">
+    <h3>Add Custom Tool</h3>
+    <div class="config-form">
+      <div class="form-group">
+        <label for="tool-name">
+          <iconify-icon icon="ph:tag-duotone"></iconify-icon>
+          Name
+        </label>
+        <input type="text" id="tool-name" placeholder="my_tool">
+      </div>
+      <div class="form-group">
+        <label for="tool-description">
+          <iconify-icon icon="ph:text-aa-duotone"></iconify-icon>
+          Description
+        </label>
+        <textarea id="tool-description" rows="2" placeholder="What this tool does..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="tool-parameters">
+          <iconify-icon icon="ph:brackets-curly-duotone"></iconify-icon>
+          Parameters (JSON)
+        </label>
+        <textarea id="tool-parameters" rows="3" placeholder='{"query": {"type": "string", "description": "Search query"}}'></textarea>
+      </div>
+      <button class="action-btn primary" id="add-tool-btn">
+        <iconify-icon icon="ph:plus-duotone"></iconify-icon>
+        Add Tool
+      </button>
+    </div>
+  </section>
+
+  <!-- MCP Connections -->
+  <section class="panel-section">
+    <h3>MCP Servers</h3>
+    <div class="mcp-list" id="mcp-list">
+      <div class="mcp-empty">
+        <iconify-icon icon="ph:plug-duotone"></iconify-icon>
+        <span>No MCP servers connected</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Connect MCP -->
+  <section class="panel-section">
+    <h3>Connect MCP Server</h3>
+    <div class="config-form">
+      <div class="form-group">
+        <label for="mcp-name">
+          <iconify-icon icon="ph:tag-duotone"></iconify-icon>
+          Name
+        </label>
+        <input type="text" id="mcp-name" placeholder="my-mcp-server">
+      </div>
+      <div class="form-group">
+        <label for="mcp-url">
+          <iconify-icon icon="ph:link-duotone"></iconify-icon>
+          URL
+        </label>
+        <input type="text" id="mcp-url" placeholder="http://localhost:3001">
+      </div>
+      <div class="form-group">
+        <label for="mcp-api-key">
+          <iconify-icon icon="ph:key-duotone"></iconify-icon>
+          API Key (optional)
+        </label>
+        <input type="password" id="mcp-api-key" placeholder="Optional API key">
+      </div>
+      <button class="action-btn" id="connect-mcp-btn">
+        <iconify-icon icon="ph:plugs-connected-duotone"></iconify-icon>
+        Connect MCP
+      </button>
+    </div>
+  </section>
+
+  <!-- Tool Execution Test -->
+  <section class="panel-section">
+    <h3>Test Tool Execution</h3>
+    <div class="config-form">
+      <div class="form-group">
+        <label for="exec-tool-name">
+          <iconify-icon icon="ph:function-duotone"></iconify-icon>
+          Tool Name
+        </label>
+        <select id="exec-tool-name" class="select-control">
+          <option value="">Select a tool...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="exec-params">
+          <iconify-icon icon="ph:brackets-curly-duotone"></iconify-icon>
+          Parameters (JSON)
+        </label>
+        <textarea id="exec-params" rows="2" placeholder='{"key": "value"}'></textarea>
+      </div>
+      <button class="action-btn" id="exec-tool-btn">
+        <iconify-icon icon="ph:play-duotone"></iconify-icon>
+        Execute
+      </button>
+      <div class="exec-result" id="exec-result"></div>
+    </div>
+  </section>
+
+  <!-- Built-in Tools Templates -->
+  <section class="panel-section">
+    <h3>Quick Add Templates</h3>
+    <div class="template-grid">
+      <button class="template-btn" data-template="weather">
+        <iconify-icon icon="ph:cloud-sun-duotone"></iconify-icon>
+        <span>Weather</span>
+      </button>
+      <button class="template-btn" data-template="search">
+        <iconify-icon icon="ph:magnifying-glass-duotone"></iconify-icon>
+        <span>Search</span>
+      </button>
+      <button class="template-btn" data-template="calculator">
+        <iconify-icon icon="ph:calculator-duotone"></iconify-icon>
+        <span>Calculator</span>
+      </button>
+      <button class="template-btn" data-template="datetime">
+        <iconify-icon icon="ph:clock-duotone"></iconify-icon>
+        <span>DateTime</span>
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,156 @@
+<div class="panel-header">
+  <iconify-icon icon="ph:robot-duotone" class="panel-icon"></iconify-icon>
+  <h2>Agent</h2>
+  <span class="connection-badge disconnected" id="connection-badge">
+    <span class="badge-dot"></span>
+    Disconnected
+  </span>
+</div>
+
+<div class="panel-body">
+  <!-- Connection Status -->
+  <section class="panel-section">
+    <h3>LiveKit Connection</h3>
+    <div class="connection-status-card" id="connection-status">
+      <div class="status-icon">
+        <iconify-icon icon="ph:plug-duotone" id="status-icon"></iconify-icon>
+      </div>
+      <div class="status-info">
+        <span class="status-label" id="status-label">Not Connected</span>
+        <span class="status-detail" id="status-detail">Configure and connect to start</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LiveKit Configuration -->
+  <section class="panel-section">
+    <h3>Configuration</h3>
+    <div class="config-form">
+      <div class="form-group">
+        <label for="livekit-url">
+          <iconify-icon icon="ph:link-duotone"></iconify-icon>
+          Server URL
+        </label>
+        <input type="text" id="livekit-url" placeholder="wss://your-server.livekit.cloud">
+      </div>
+      <div class="form-group">
+        <label for="room-name">
+          <iconify-icon icon="ph:door-duotone"></iconify-icon>
+          Room Name
+        </label>
+        <input type="text" id="room-name" placeholder="kwami-room" value="kwami-playground">
+      </div>
+    </div>
+  </section>
+
+  <!-- Auth Mode Selection -->
+  <section class="panel-section">
+    <h3>Authentication</h3>
+    <div class="auth-mode-tabs">
+      <button class="auth-tab active" data-mode="local">
+        <iconify-icon icon="ph:code-duotone"></iconify-icon>
+        Local Dev
+      </button>
+      <button class="auth-tab" data-mode="endpoint">
+        <iconify-icon icon="ph:cloud-duotone"></iconify-icon>
+        Token Endpoint
+      </button>
+    </div>
+    
+    <!-- Local Dev Auth (API Key + Secret) -->
+    <div class="auth-panel" id="auth-local">
+      <div class="auth-warning">
+        <iconify-icon icon="ph:warning-duotone"></iconify-icon>
+        <span>Only for local development. Never expose secrets in production!</span>
+      </div>
+      <div class="config-form">
+        <div class="form-group">
+          <label for="livekit-api-key">
+            <iconify-icon icon="ph:key-duotone"></iconify-icon>
+            API Key
+          </label>
+          <input type="text" id="livekit-api-key" placeholder="API...">
+        </div>
+        <div class="form-group">
+          <label for="livekit-api-secret">
+            <iconify-icon icon="ph:lock-key-duotone"></iconify-icon>
+            API Secret
+          </label>
+          <input type="password" id="livekit-api-secret" placeholder="••••••••••••">
+        </div>
+      </div>
+    </div>
+
+    <!-- Token Endpoint Auth -->
+    <div class="auth-panel hidden" id="auth-endpoint">
+      <div class="config-form">
+        <div class="form-group">
+          <label for="livekit-token-endpoint">
+            <iconify-icon icon="ph:globe-duotone"></iconify-icon>
+            Token Endpoint URL
+          </label>
+          <input type="text" id="livekit-token-endpoint" placeholder="https://your-api.com/token">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- User ID -->
+  <section class="panel-section">
+    <h3>User Identity</h3>
+    <div class="form-group">
+      <label for="user-id">
+        <iconify-icon icon="ph:identification-card-duotone"></iconify-icon>
+        User ID
+      </label>
+      <input type="text" id="user-id" placeholder="user_123" value="playground_user">
+    </div>
+  </section>
+
+  <!-- Connection Actions -->
+  <section class="panel-section">
+    <h3>Actions</h3>
+    <div class="action-buttons">
+      <button class="action-btn primary" id="connect-btn">
+        <iconify-icon icon="ph:play-duotone"></iconify-icon>
+        Connect
+      </button>
+      <button class="action-btn" id="disconnect-btn" disabled>
+        <iconify-icon icon="ph:stop-duotone"></iconify-icon>
+        Disconnect
+      </button>
+    </div>
+  </section>
+
+  <!-- Conversation Log -->
+  <section class="panel-section">
+    <h3>Conversation</h3>
+    <div class="conversation-log" id="conversation-log">
+      <div class="log-empty">
+        <iconify-icon icon="ph:chat-circle-dots-duotone"></iconify-icon>
+        <span>No messages yet</span>
+      </div>
+    </div>
+    <div class="message-input-container">
+      <input type="text" id="message-input" placeholder="Type a message..." disabled>
+      <button class="send-btn" id="send-btn" disabled>
+        <iconify-icon icon="ph:paper-plane-right-duotone"></iconify-icon>
+      </button>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="panel-section">
+    <h3>Quick Actions</h3>
+    <div class="action-buttons">
+      <button class="action-btn" id="interrupt-btn" disabled>
+        <iconify-icon icon="ph:hand-palm-duotone"></iconify-icon>
+        Interrupt
+      </button>
+      <button class="action-btn" id="clear-log-btn">
+        <iconify-icon icon="ph:trash-duotone"></iconify-icon>
+        Clear Log
+      </button>
+    </div>
+  </section>
+</div>

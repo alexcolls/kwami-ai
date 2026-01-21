@@ -1,0 +1,158 @@
+<div class="panel-header">
+  <iconify-icon icon="ph:blob-duotone" class="panel-icon"></iconify-icon>
+  <h2>Avatar</h2>
+</div>
+
+<div class="panel-body">
+  <!-- Skin Selection -->
+  <section class="panel-section">
+    <h3>Skin</h3>
+    <div class="skin-selector">
+      <label class="skin-option" data-skin="poles">
+        <input type="radio" name="skin" value="poles">
+        <span class="skin-preview poles"></span>
+        <span class="skin-label">Poles</span>
+      </label>
+      <label class="skin-option" data-skin="donut">
+        <input type="radio" name="skin" value="donut">
+        <span class="skin-preview donut"></span>
+        <span class="skin-label">Donut</span>
+      </label>
+      <label class="skin-option" data-skin="vintage">
+        <input type="radio" name="skin" value="vintage">
+        <span class="skin-preview vintage"></span>
+        <span class="skin-label">Vintage</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- Colors -->
+  <section class="panel-section">
+    <h3>Colors</h3>
+    <div class="color-grid">
+      <div class="control-group">
+        <label>X</label>
+        <input type="color" id="color-x" value="#ff0066">
+      </div>
+      <div class="control-group">
+        <label>Y</label>
+        <input type="color" id="color-y" value="#00ff66">
+      </div>
+      <div class="control-group">
+        <label>Z</label>
+        <input type="color" id="color-z" value="#6600ff">
+      </div>
+    </div>
+  </section>
+
+  <!-- Spikes -->
+  <section class="panel-section">
+    <h3>Spikes</h3>
+    <div class="slider-group">
+      <div class="control-row">
+        <label>X</label>
+        <input type="range" id="spike-x" min="0" max="1" step="0.01" value="0.3">
+        <span class="value">0.30</span>
+      </div>
+      <div class="control-row">
+        <label>Y</label>
+        <input type="range" id="spike-y" min="0" max="1" step="0.01" value="0.3">
+        <span class="value">0.30</span>
+      </div>
+      <div class="control-row">
+        <label>Z</label>
+        <input type="range" id="spike-z" min="0" max="1" step="0.01" value="0.3">
+        <span class="value">0.30</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rotation -->
+  <section class="panel-section">
+    <h3>Rotation</h3>
+    <div class="slider-group">
+      <div class="control-row">
+        <label>X</label>
+        <input type="range" id="rotation-x" min="0" max="0.02" step="0.001" value="0.002">
+        <span class="value">0.002</span>
+      </div>
+      <div class="control-row">
+        <label>Y</label>
+        <input type="range" id="rotation-y" min="0" max="0.02" step="0.001" value="0.003">
+        <span class="value">0.003</span>
+      </div>
+      <div class="control-row">
+        <label>Z</label>
+        <input type="range" id="rotation-z" min="0" max="0.02" step="0.001" value="0.001">
+        <span class="value">0.001</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Appearance -->
+  <section class="panel-section">
+    <h3>Appearance</h3>
+    <div class="slider-group">
+      <div class="control-row">
+        <label>Scale</label>
+        <input type="range" id="scale" min="0.5" max="10" step="0.1" value="1">
+        <span class="value">1.0</span>
+      </div>
+      <div class="control-row">
+        <label>Opacity</label>
+        <input type="range" id="opacity" min="0" max="1" step="0.01" value="1">
+        <span class="value">1.00</span>
+      </div>
+      <div class="control-row">
+        <label>Shininess</label>
+        <input type="range" id="shininess" min="1" max="200" step="1" value="50">
+        <span class="value">50</span>
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <label class="checkbox-label">
+        <input type="checkbox" id="wireframe">
+        <span class="checkbox-custom"></span>
+        Wireframe
+      </label>
+    </div>
+  </section>
+
+  <!-- State -->
+  <section class="panel-section">
+    <h3>State</h3>
+    <div class="state-buttons">
+      <button class="state-btn active" data-state="idle">
+        <iconify-icon icon="ph:moon-stars-duotone"></iconify-icon>
+        Idle
+      </button>
+      <button class="state-btn" data-state="listening">
+        <iconify-icon icon="ph:microphone-duotone"></iconify-icon>
+        Listen
+      </button>
+      <button class="state-btn" data-state="thinking">
+        <iconify-icon icon="ph:brain-duotone"></iconify-icon>
+        Think
+      </button>
+    </div>
+  </section>
+
+  <!-- Actions -->
+  <section class="panel-section">
+    <h3>Actions</h3>
+    <div class="action-buttons">
+      <button class="action-btn primary" id="randomize">
+        <iconify-icon icon="ph:dice-five-duotone"></iconify-icon>
+        Randomize
+      </button>
+      <button class="action-btn" id="export-gltf">
+        <iconify-icon icon="ph:cube-duotone"></iconify-icon>
+        Export GLTF
+      </button>
+      <button class="action-btn" id="reset">
+        <iconify-icon icon="ph:arrow-counter-clockwise-duotone"></iconify-icon>
+        Reset
+      </button>
+    </div>
+  </section>
+</div>

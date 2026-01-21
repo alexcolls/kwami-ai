@@ -1,0 +1,140 @@
+<div class="panel-header">
+  <iconify-icon icon="ph:user-circle-duotone" class="panel-icon"></iconify-icon>
+  <h2>Persona</h2>
+</div>
+
+<div class="panel-body">
+  <!-- Identity -->
+  <section class="panel-section">
+    <h3>Identity</h3>
+    <div class="form-group">
+      <label for="persona-name">
+        <iconify-icon icon="ph:identification-badge-duotone"></iconify-icon>
+        Name
+      </label>
+      <input type="text" id="persona-name" placeholder="Kwami">
+    </div>
+    <div class="form-group">
+      <label for="persona-personality">
+        <iconify-icon icon="ph:sparkle-duotone"></iconify-icon>
+        Personality
+      </label>
+      <textarea id="persona-personality" rows="2" placeholder="Describe the personality..."></textarea>
+    </div>
+  </section>
+
+  <!-- Traits -->
+  <section class="panel-section">
+    <h3>Traits</h3>
+    <div class="traits-container" id="traits-container">
+      <!-- Traits rendered dynamically -->
+    </div>
+    <div class="trait-input-row">
+      <input type="text" id="new-trait" placeholder="Add trait...">
+      <button class="add-trait-btn" id="add-trait-btn">
+        <iconify-icon icon="ph:plus-duotone"></iconify-icon>
+      </button>
+    </div>
+  </section>
+
+  <!-- Conversation Style -->
+  <section class="panel-section">
+    <h3>Conversation Style</h3>
+    <div class="form-group">
+      <label for="conversation-style">
+        <iconify-icon icon="ph:chat-teardrop-duotone"></iconify-icon>
+        Style
+      </label>
+      <input type="text" id="conversation-style" placeholder="friendly, professional, casual...">
+    </div>
+    <div class="form-group">
+      <label for="language">
+        <iconify-icon icon="ph:translate-duotone"></iconify-icon>
+        Language
+      </label>
+      <select id="language" class="select-control">
+        <option value="en">English</option>
+        <option value="es">Spanish</option>
+        <option value="fr">French</option>
+        <option value="de">German</option>
+        <option value="ja">Japanese</option>
+        <option value="zh">Chinese</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Response Settings -->
+  <section class="panel-section">
+    <h3>Response Settings</h3>
+    <div class="option-group">
+      <span class="option-label">Response Length</span>
+      <div class="toggle-group">
+        <button class="toggle-btn" data-length="short">Short</button>
+        <button class="toggle-btn" data-length="medium">Medium</button>
+        <button class="toggle-btn" data-length="long">Long</button>
+      </div>
+    </div>
+    <div class="option-group">
+      <span class="option-label">Emotional Tone</span>
+      <div class="tone-selector">
+        <label class="tone-option" data-tone="neutral">
+          <input type="radio" name="tone" value="neutral">
+          <iconify-icon icon="ph:minus-duotone"></iconify-icon>
+          <span>Neutral</span>
+        </label>
+        <label class="tone-option" data-tone="warm">
+          <input type="radio" name="tone" value="warm">
+          <iconify-icon icon="ph:sun-duotone"></iconify-icon>
+          <span>Warm</span>
+        </label>
+        <label class="tone-option" data-tone="enthusiastic">
+          <input type="radio" name="tone" value="enthusiastic">
+          <iconify-icon icon="ph:lightning-duotone"></iconify-icon>
+          <span>Energetic</span>
+        </label>
+        <label class="tone-option" data-tone="calm">
+          <input type="radio" name="tone" value="calm">
+          <iconify-icon icon="ph:moon-stars-duotone"></iconify-icon>
+          <span>Calm</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- Emotional Traits -->
+  <section class="panel-section">
+    <h3>Emotional Traits</h3>
+    <div class="slider-group emotional-traits" id="emotional-traits">
+      <!-- Emotional trait sliders rendered dynamically -->
+    </div>
+  </section>
+
+  <!-- System Prompt -->
+  <section class="panel-section">
+    <h3>System Prompt</h3>
+    <textarea id="system-prompt" rows="4" placeholder="Custom system prompt..."></textarea>
+    <button class="action-btn" id="preview-prompt-btn" style="margin-top: 8px">
+      <iconify-icon icon="ph:eye-duotone"></iconify-icon>
+      Preview Full Prompt
+    </button>
+  </section>
+
+  <!-- Actions -->
+  <section class="panel-section">
+    <h3>Actions</h3>
+    <div class="action-buttons">
+      <button class="action-btn" id="export-persona-btn">
+        <iconify-icon icon="ph:export-duotone"></iconify-icon>
+        Export JSON
+      </button>
+      <button class="action-btn" id="import-persona-btn">
+        <iconify-icon icon="ph:download-duotone"></iconify-icon>
+        Import JSON
+      </button>
+      <button class="action-btn" id="reset-persona-btn">
+        <iconify-icon icon="ph:arrow-counter-clockwise-duotone"></iconify-icon>
+        Reset Default
+      </button>
+    </div>
+  </section>
+</div>

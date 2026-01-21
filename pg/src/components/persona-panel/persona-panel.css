@@ -1,0 +1,166 @@
+/* =====================================================
+   PERSONA PANEL - Component Styles
+   ===================================================== */
+
+/* Traits */
+.traits-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.trait-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--accent-glow);
+  border: 1px solid var(--accent-primary);
+  border-radius: 16px;
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.trait-remove {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.trait-remove:hover {
+  color: var(--error);
+}
+
+.trait-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.trait-input-row input {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.add-trait-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-primary);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-trait-btn:hover {
+  background: var(--accent-hover);
+}
+
+/* Toggle Group & Tone Selector */
+.option-group {
+  margin-bottom: 14px;
+}
+
+.option-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.toggle-group {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-1);
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.toggle-btn.active {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.tone-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.tone-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px;
+  background: var(--surface-1);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tone-option input {
+  display: none;
+}
+
+.tone-option:hover {
+  background: var(--surface-2);
+}
+
+.tone-option.active {
+  background: var(--accent-glow);
+  border-color: var(--accent-primary);
+}
+
+.tone-option iconify-icon {
+  font-size: 20px;
+  color: var(--text-secondary);
+}
+
+.tone-option.active iconify-icon {
+  color: var(--accent-primary);
+}
+
+.tone-option span {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.tone-option.active span {
+  color: var(--text-primary);
+}
