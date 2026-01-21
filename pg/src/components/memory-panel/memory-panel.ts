@@ -1,4 +1,4 @@
-import type { Kwami, MemoryContext, MemorySearchResult } from 'kwami'
+import type { Kwami, MemoryContext, MemorySearchResult } from 'kwami-ai'
 import template from './memory-panel.html?raw'
 import './memory-panel.css'
 

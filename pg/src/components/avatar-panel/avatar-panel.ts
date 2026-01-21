@@ -1,4 +1,4 @@
-import type { Avatar } from 'kwami'
+import type { Avatar } from 'kwami-ai'
 import template from './avatar-panel.html?raw'
 import './avatar-panel.css'
 

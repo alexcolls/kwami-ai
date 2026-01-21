@@ -1,4 +1,4 @@
-import { Kwami } from 'kwami'
+import { Kwami } from 'kwami-ai'
 import template from './info-panel.html?raw'
 import './info-panel.css'
 

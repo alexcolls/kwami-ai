@@ -1,4 +1,4 @@
-import type { Kwami } from 'kwami'
+import type { Kwami } from 'kwami-ai'
 import template from './sidebar.html?raw'
 import './sidebar.css'
 import { createAvatarPanel } from '../avatar-panel'

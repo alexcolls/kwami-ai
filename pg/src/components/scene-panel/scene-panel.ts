@@ -1,4 +1,4 @@
-import type { Avatar } from 'kwami'
+import type { Avatar } from 'kwami-ai'
 import template from './scene-panel.html?raw'
 import './scene-panel.css'
 

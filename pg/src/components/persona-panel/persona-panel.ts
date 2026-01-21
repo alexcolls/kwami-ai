@@ -1,4 +1,4 @@
-import type { Kwami } from 'kwami'
+import type { Kwami } from 'kwami-ai'
 import template from './persona-panel.html?raw'
 import './persona-panel.css'
 

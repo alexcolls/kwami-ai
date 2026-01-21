@@ -1,4 +1,4 @@
-import type { Kwami } from 'kwami'
+import type { Kwami } from 'kwami-ai'
 import template from './agent-panel.html?raw'
 import './agent-panel.css'
 

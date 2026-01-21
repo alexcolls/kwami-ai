@@ -1,4 +1,4 @@
-import type { Kwami, ToolDefinition } from 'kwami'
+import type { Kwami, ToolDefinition } from 'kwami-ai'
 import template from './tools-panel.html?raw'
 import './tools-panel.css'
 
