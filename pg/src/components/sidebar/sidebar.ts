@@ -5,12 +5,20 @@ import { createAvatarPanel } from '../avatar-panel'
 import { createScenePanel } from '../scene-panel'
 import { createAudioPanel } from '../audio-panel'
 import { createAgentPanel } from '../agent-panel'
+import { createVoicePanel } from '../voice-panel'
+import { createEnhancementsPanel } from '../enhancements-panel'
+import { createMetricsPanel } from '../metrics-panel'
+import { createTranscriptionPanel } from '../transcription-panel'
 import { createPersonaPanel } from '../persona-panel'
 import { createMemoryPanel } from '../memory-panel'
 import { createToolsPanel } from '../tools-panel'
 import { createInfoPanel } from '../info-panel'
 
-export type PanelType = 'avatar' | 'scene' | 'audio' | 'agent' | 'persona' | 'memory' | 'tools' | 'info'
+export type PanelType = 
+  | 'avatar' | 'scene' | 'audio' 
+  | 'agent' | 'voice' | 'enhancements' | 'metrics' | 'transcription'
+  | 'persona' | 'memory' | 'tools' 
+  | 'info'
 
 interface KwamiWorkspace {
   id: string
@@ -42,7 +50,9 @@ function generateRandomKwami(): KwamiWorkspace {
   }
 }
 
-export function createPanelSystem(kwami: Kwami): PanelSystem {
+type SwitchRendererCallback = (type: 'blob' | 'crystal') => void
+
+export function createPanelSystem(kwami: Kwami, onSwitchRenderer?: SwitchRendererCallback): PanelSystem {
   let currentPanel: PanelType = 'avatar'
   let collapsed = false
 
@@ -188,13 +198,21 @@ export function createPanelSystem(kwami: Kwami): PanelSystem {
 
   // Create all panels
   const panels: Record<PanelType, HTMLElement> = {
-    avatar: createAvatarPanel(kwami.avatar),
+    // Visual
+    avatar: createAvatarPanel(kwami.avatar, onSwitchRenderer),
     scene: createScenePanel(kwami.avatar),
     audio: createAudioPanel(kwami.avatar),
+    // Agent
     agent: createAgentPanel(kwami),
+    voice: createVoicePanel(kwami),
+    enhancements: createEnhancementsPanel(kwami),
+    metrics: createMetricsPanel(kwami),
+    transcription: createTranscriptionPanel(kwami),
+    // Config
     persona: createPersonaPanel(kwami),
     memory: createMemoryPanel(kwami),
     tools: createToolsPanel(kwami),
+    // Info
     info: createInfoPanel(kwami),
   }
 
@@ -229,7 +247,7 @@ export function createPanelSystem(kwami: Kwami): PanelSystem {
     }
 
     // Update active button
-    container.querySelectorAll('.switcher-btn[data-panel]').forEach(btn => {
+    container.querySelectorAll<HTMLButtonElement>('.switcher-btn[data-panel]').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.panel === panel)
     })
 
@@ -261,11 +279,26 @@ export function createPanelSystem(kwami: Kwami): PanelSystem {
     if ((e.target as HTMLElement).tagName === 'INPUT' || 
         (e.target as HTMLElement).tagName === 'TEXTAREA') return
 
-    // Number keys 1-8 for panels
-    const key = parseInt(e.key)
-    if (key >= 1 && key <= 8) {
-      const panelTypes: PanelType[] = ['avatar', 'scene', 'audio', 'agent', 'persona', 'memory', 'tools', 'info']
-      switchTo(panelTypes[key - 1])
+    // Number keys 1-9, 0, -, = for panels
+    const panelTypes: PanelType[] = [
+      'avatar', 'scene', 'audio', 
+      'agent', 'voice', 'enhancements', 'metrics', 'transcription',
+      'persona', 'memory', 'tools', 
+      'info'
+    ]
+    
+    const key = e.key
+    if (key >= '1' && key <= '9') {
+      const index = parseInt(key) - 1
+      if (index < panelTypes.length) {
+        switchTo(panelTypes[index])
+      }
+    } else if (key === '0') {
+      switchTo(panelTypes[9]) // memory
+    } else if (key === '-') {
+      switchTo(panelTypes[10]) // tools
+    } else if (key === '=') {
+      switchTo(panelTypes[11]) // info
     }
     
     // P to toggle sidebar

@@ -595,3 +595,44 @@ kbd {
   color: var(--text-primary);
   box-shadow: 0 2px 0 var(--surface-3);
 }
+
+/* =====================================================
+   COLLAPSIBLE SECTIONS
+   ===================================================== */
+
+.panel-section.collapsible .section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+.panel-section.collapsible .section-toggle:hover {
+  color: var(--text-primary);
+}
+
+.panel-section.collapsible .toggle-icon {
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+}
+
+.panel-section.collapsible.collapsed .toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.panel-section.collapsible .section-content {
+  max-height: 500px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.2s ease;
+  opacity: 1;
+  margin-top: 12px;
+}
+
+.panel-section.collapsible.collapsed .section-content {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
