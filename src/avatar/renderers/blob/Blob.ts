@@ -102,7 +102,7 @@ export class Blob {
   }
   public colors = { x: '#ff0000', y: '#00ff00', z: '#0000ff' }
   public opacity = 1
-  public baseScale = 1.0
+  public baseScale = 3.2
   public dna = ''
   private backgroundTexture: Texture | null = null
   private glassModeEnabled = false
@@ -731,7 +731,6 @@ export class Blob {
       getRandomHexColor(),
     )
 
-    this.setScale(getRandomBetween(3.5, 8, 1))
     this.setShininess(getRandomBetween(1, 200, 1))
     this.setWireframe(getRandomBoolean(0.1))
   }
