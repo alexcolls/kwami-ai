@@ -1,0 +1,229 @@
+/* =====================================================
+   VOICE PANEL - Component Styles
+   ===================================================== */
+
+/* Pipeline Type Selector */
+.pipeline-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pipeline-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 12px;
+  background: var(--surface-1);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.pipeline-type-btn iconify-icon {
+  font-size: 24px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.pipeline-type-btn .type-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pipeline-type-btn .type-desc {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.pipeline-type-btn:hover {
+  background: var(--surface-2);
+}
+
+.pipeline-type-btn.active {
+  border-color: var(--accent-primary);
+  background: rgba(124, 92, 255, 0.1);
+}
+
+.pipeline-type-btn.active iconify-icon {
+  color: var(--accent-primary);
+}
+
+/* Preset Grid */
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: var(--surface-1);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.preset-btn iconify-icon {
+  font-size: 18px;
+}
+
+.preset-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+}
+
+.preset-btn.active {
+  border-color: var(--accent-primary);
+  background: rgba(124, 92, 255, 0.1);
+  color: var(--accent-primary);
+}
+
+/* Section headers with icons */
+.panel-section h3 iconify-icon {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Config Descriptor */
+.config-descriptor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 10px;
+  background: var(--surface-1);
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.descriptor-label {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.config-descriptor code {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-secondary);
+  word-break: break-all;
+}
+
+/* Slider Group */
+.slider-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slider-group input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--surface-2);
+  border-radius: 2px;
+  outline: none;
+}
+
+.slider-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.slider-group input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.slider-value {
+  min-width: 32px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+/* Voice Preview */
+.voice-preview {
+  margin-top: 12px;
+}
+
+.preview-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.preview-btn:hover {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}
+
+.preview-btn iconify-icon {
+  font-size: 16px;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+  display: flex;
+  gap: 16px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+}
+
+/* Full Width Button */
+.action-btn.full-width {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Hidden sections */
+.panel-section.hidden {
+  display: none;
+}
