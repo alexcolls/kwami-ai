@@ -1,7 +1,14 @@
-import type { AgentConfig, AgentPipeline, PipelineConnectOptions } from '../types'
+import type { AgentConfig, AgentPipeline, PipelineConnectOptions, PersonaConfig, ToolDefinition } from '../types'
 import type { AgentAdapter } from './adapters/types'
+import type { VoicePipelineConfig } from './voice/types'
 import { LiveKitAdapter } from './adapters/LiveKitAdapter'
 import { logger } from '../utils/logger'
+
+// Forward declaration to avoid circular dependency
+interface KwamiRef {
+  id: string
+  persona: { getConfig(): PersonaConfig }
+}
 
 /**
  * Agent - Manages AI processing pipelines
@@ -10,9 +17,10 @@ import { logger } from '../utils/logger'
  * - Creating and managing the appropriate pipeline (voice, realtime, multimodal)
  * - Connecting to backend services via adapters (LiveKit, etc.)
  * - Handling conversation flow
+ * - Syncing configuration updates to the backend in real-time
  * 
- * The actual AI processing happens on the backend (Python agent via kwami-api).
- * This class manages the frontend connection.
+ * The actual AI processing happens on the backend (Python agent deployed to LiveKit).
+ * This class manages the frontend connection and configuration.
  */
 export class Agent {
   private config: AgentConfig
@@ -24,7 +32,7 @@ export class Agent {
   private onAgentTextCallback?: (text: string) => void
   private _onErrorCallback?: (error: Error) => void
 
-  constructor(config?: AgentConfig) {
+  constructor(config?: AgentConfig, _kwamiRef?: KwamiRef) {
     this.config = config ?? {}
     this.initAdapter()
   }
@@ -41,11 +49,12 @@ export class Agent {
         this.adapter = new LiveKitAdapter(this.config.livekit)
     }
     
-    logger.info(`Agent initialized with ${this.adapter.getName()} adapter`)
+    logger.debug(`Agent initialized with ${this.adapter.getName()} adapter`)
   }
 
   /**
    * Connect to the AI backend and start conversation
+   * Dispatches a unique agent instance with the provided configuration
    */
   async connect(options?: PipelineConnectOptions): Promise<void> {
     if (!this.adapter) {
@@ -67,7 +76,7 @@ export class Agent {
       this.pipeline.onAgentText(this.onAgentTextCallback)
     }
     
-    // Connect
+    // Connect with full Kwami config for agent dispatch
     await this.pipeline.connect(options ?? {})
     logger.info('Agent connected')
   }
@@ -87,6 +96,60 @@ export class Agent {
   isConnected(): boolean {
     return this.pipeline?.isConnected() ?? false
   }
+
+  // ---------------------------------------------------------------------------
+  // Voice Configuration
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Get the current voice pipeline configuration
+   */
+  getVoiceConfig(): VoicePipelineConfig | undefined {
+    return this.config.livekit?.voice
+  }
+
+  /**
+   * Update voice pipeline configuration
+   * Use syncConfigToBackend() to push changes to the running agent
+   */
+  updateVoiceConfig(config: Partial<VoicePipelineConfig>): void {
+    if (!this.config.livekit) {
+      this.config.livekit = {}
+    }
+    this.config.livekit.voice = {
+      ...this.config.livekit.voice,
+      ...config,
+    }
+    
+    // Update adapter config
+    if (this.adapter && 'updateConfig' in this.adapter) {
+      (this.adapter as LiveKitAdapter).updateConfig({ voice: this.config.livekit.voice })
+    }
+  }
+
+  /**
+   * Sync configuration changes to the backend agent in real-time
+   * This sends a data message to the running agent to update its config
+   */
+  syncConfigToBackend(
+    type: 'voice' | 'persona' | 'tools' | 'full',
+    config: VoicePipelineConfig | PersonaConfig | ToolDefinition[] | Record<string, unknown>
+  ): void {
+    if (!this.pipeline?.isConnected()) {
+      logger.warn('Cannot sync config: not connected')
+      return
+    }
+    
+    // Send config update via the pipeline's data channel
+    if (this.pipeline && 'sendConfigUpdate' in this.pipeline) {
+      (this.pipeline as AgentPipeline & { sendConfigUpdate: (type: string, config: unknown) => void })
+        .sendConfigUpdate(type, config)
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Callbacks
+  // ---------------------------------------------------------------------------
 
   /**
    * Register callback for user speech transcripts
@@ -118,6 +181,10 @@ export class Agent {
     this._onErrorCallback = callback
   }
 
+  // ---------------------------------------------------------------------------
+  // Actions
+  // ---------------------------------------------------------------------------
+
   /**
    * Send text message to agent
    */
@@ -136,6 +203,10 @@ export class Agent {
     this.pipeline?.interrupt()
   }
 
+  // ---------------------------------------------------------------------------
+  // Configuration
+  // ---------------------------------------------------------------------------
+
   /**
    * Get the error callback
    */
@@ -151,7 +222,7 @@ export class Agent {
   }
 
   /**
-   * Update configuration (requires reconnect)
+   * Update configuration (may require reconnect for some changes)
    */
   updateConfig(config: Partial<AgentConfig>): void {
     this.config = { ...this.config, ...config }
@@ -160,6 +231,11 @@ export class Agent {
     if (config.adapter) {
       this.adapter?.dispose()
       this.initAdapter()
+    }
+    
+    // Update adapter config for livekit changes
+    if (config.livekit && this.adapter && 'updateConfig' in this.adapter) {
+      (this.adapter as LiveKitAdapter).updateConfig(config.livekit)
     }
   }
 
