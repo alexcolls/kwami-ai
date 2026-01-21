@@ -4,11 +4,15 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-async function ensureDir(dirPath) {
+async function ensureDir(dirPath: string): Promise<void> {
   await mkdir(dirPath, { recursive: true })
 }
 
-async function copyFilesByExtension(srcDir, outDir, extensions) {
+async function copyFilesByExtension(
+  srcDir: string,
+  outDir: string,
+  extensions: string[],
+): Promise<void> {
   await ensureDir(outDir)
 
   const entries = await readdir(srcDir, { withFileTypes: true })
@@ -21,7 +25,7 @@ async function copyFilesByExtension(srcDir, outDir, extensions) {
   )
 }
 
-async function copyBlobSkinShaders() {
+async function copyBlobSkinShaders(): Promise<void> {
   const skinsSrc = path.resolve(__dirname, '../src/avatar/renderers/blob/skins')
   const skinsOut = path.resolve(__dirname, '../dist/avatar/renderers/blob/skins')
 
@@ -37,7 +41,7 @@ async function copyBlobSkinShaders() {
   )
 }
 
-async function main() {
+async function main(): Promise<void> {
   await copyBlobSkinShaders()
 }
 
