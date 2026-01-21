@@ -1,7 +1,7 @@
 import 'iconify-icon'
 import './styles/global.css'
 import './styles/shared.css'
-import { Kwami } from 'kwami'
+import { Kwami } from 'kwami-ai'
 import { createPanelSystem } from './components/sidebar'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
