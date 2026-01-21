@@ -121,7 +121,7 @@ export function createAvatarPanel(avatar: Avatar): HTMLElement {
     avatar.setColors('#ff0066', '#00ff66', '#6600ff')
     avatar.setSpikes(0.3, 0.3, 0.3)
     avatar.setRotation(0.002, 0.003, 0.001)
-    avatar.setScale(1)
+    avatar.setScale(3.2)
     avatar.setOpacity(1)
     avatar.setShininess(50)
     avatar.setWireframe(false)
