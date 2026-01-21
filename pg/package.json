@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "kwami": "file:..",
+    "kwami-ai": "file:..",
     "iconify-icon": "^3.0.2"
   },
   "devDependencies": {
