@@ -122,6 +122,20 @@ export class SkillManager {
   }
 
   /**
+   * Get all registered skill names
+   */
+  getSkillNames(): string[] {
+    return Array.from(this.skills.keys())
+  }
+
+  /**
+   * Get all skill definitions
+   */
+  getSkillDefinitions(): SkillDefinition[] {
+    return Array.from(this.skills.values())
+  }
+
+  /**
    * Cleanup resources
    */
   dispose(): void {
