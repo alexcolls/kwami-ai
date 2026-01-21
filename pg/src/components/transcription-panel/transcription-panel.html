@@ -1,0 +1,60 @@
+<div class="panel-header">
+  <iconify-icon icon="ph:chat-circle-text-duotone" class="panel-icon"></iconify-icon>
+  <h2>Transcription</h2>
+  <span class="message-count" id="message-count">0 messages</span>
+</div>
+
+<div class="panel-body transcription-body">
+  <!-- Real-time indicator -->
+  <div class="realtime-indicator" id="realtime-indicator">
+    <div class="indicator-row listening" id="user-indicator">
+      <iconify-icon icon="ph:microphone-duotone"></iconify-icon>
+      <span>Listening...</span>
+      <div class="voice-wave">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="indicator-row speaking hidden" id="agent-indicator">
+      <iconify-icon icon="ph:speaker-high-duotone"></iconify-icon>
+      <span>Speaking...</span>
+      <div class="voice-wave">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interim transcript -->
+  <div class="interim-transcript hidden" id="interim-transcript">
+    <span class="interim-label">Hearing:</span>
+    <span class="interim-text" id="interim-text"></span>
+  </div>
+
+  <!-- Conversation Log -->
+  <div class="conversation-log" id="conversation-log">
+    <div class="log-empty" id="log-empty">
+      <iconify-icon icon="ph:chat-circle-dots-duotone"></iconify-icon>
+      <span>No messages yet</span>
+      <span class="log-hint">Connect and start talking to see transcriptions</span>
+    </div>
+  </div>
+
+  <!-- Message Input -->
+  <div class="message-input-area">
+    <div class="message-input-container">
+      <input type="text" id="message-input" placeholder="Type a message..." disabled>
+      <button class="send-btn" id="send-btn" disabled>
+        <iconify-icon icon="ph:paper-plane-right-duotone"></iconify-icon>
+      </button>
+    </div>
+    <div class="input-actions">
+      <button class="input-action-btn" id="interrupt-btn" disabled title="Interrupt (Esc)">
+        <iconify-icon icon="ph:hand-palm-duotone"></iconify-icon>
+        Interrupt
+      </button>
+      <button class="input-action-btn" id="clear-log-btn" title="Clear log">
+        <iconify-icon icon="ph:trash-duotone"></iconify-icon>
+        Clear
+      </button>
+    </div>
+  </div>
+</div>
