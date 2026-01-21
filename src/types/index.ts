@@ -2,6 +2,51 @@
 // KWAMI TYPES
 // =============================================================================
 
+// Re-export voice types for convenience
+export type {
+  // Voice Pipeline Types
+  VADConfig,
+  VADProvider,
+  STTConfig,
+  STTProvider,
+  STTInferenceProvider,
+  STTPluginProvider,
+  STTLanguage,
+  LLMConfig,
+  LLMProvider,
+  LLMInferenceProvider,
+  LLMPluginProvider,
+  OpenAIModel,
+  GeminiModel,
+  TTSConfig,
+  TTSProvider,
+  TTSInferenceProvider,
+  TTSPluginProvider,
+  PresetVoice,
+  RealtimeConfig,
+  RealtimeProvider,
+  RealtimeModality,
+  TurnDetectionConfig,
+  NoiseCancellationConfig,
+  VoiceEnhancementsConfig,
+  VoiceLatencyMetrics,
+  VoicePipelineMetrics,
+  VoicePipelineConfig,
+  VoicePipelinePreset,
+  VoicePipelineType,
+} from '../agent/voice/types'
+
+// Re-export voice utilities
+export {
+  getVoicePipelinePreset,
+  buildSTTDescriptor,
+  buildTTSDescriptor,
+  buildLLMDescriptor,
+  PRESET_VOICES,
+  findPresetVoice,
+  filterPresetVoices,
+} from '../agent/voice/types'
+
 // -----------------------------------------------------------------------------
 // Core
 // -----------------------------------------------------------------------------
@@ -28,11 +73,12 @@ export interface KwamiCallbacks {
 // Avatar
 // -----------------------------------------------------------------------------
 
-export type AvatarRendererType = 'blob' | 'humanoid' // Extensible for future
+export type AvatarRendererType = 'blob' | 'crystal' | 'humanoid' // Extensible for future
 
 export interface AvatarConfig {
   renderer?: AvatarRendererType
   blob?: BlobConfig
+  crystal?: CrystalConfig
   scene?: SceneConfig
   audio?: {
     files?: string[]
@@ -75,6 +121,52 @@ export interface BlobConfig {
   shininess?: number
   wireframe?: boolean
   position?: { x: number; y: number }
+}
+
+// -----------------------------------------------------------------------------
+// Crystal Config
+// -----------------------------------------------------------------------------
+
+export type CrystalFormation = 'constellation' | 'helix' | 'vortex'
+export type CrystalCoreStyle = 'plasma' | 'nebula' | 'pulse'
+
+export interface CrystalFormationSelection {
+  formation: CrystalFormation
+  coreStyle?: CrystalCoreStyle
+}
+
+export interface CrystalConfig {
+  formation?: CrystalFormationSelection
+  shards?: {
+    count?: number
+    sizeRange?: [number, number]
+    orbitRadius?: [number, number]
+    rotationSpeed?: number
+    opacityRange?: [number, number]
+  }
+  core?: {
+    size?: number
+    glowIntensity?: number
+    pulseSpeed?: number
+    innerColor?: string
+    outerColor?: string
+  }
+  colors?: {
+    primary: string
+    secondary: string
+    accent: string
+  }
+  audioEffects?: {
+    bassOrbitBoost?: number
+    midRotationBoost?: number
+    highGlowBoost?: number
+    reactivity?: number
+    smoothing?: number
+    enabled?: boolean
+  }
+  particleCount?: number
+  scale?: number
+  rotation?: { x: number; y: number; z: number }
 }
 
 // -----------------------------------------------------------------------------
@@ -137,21 +229,114 @@ export interface CameraConfig {
 // Agent
 // -----------------------------------------------------------------------------
 
+import type { VoicePipelineConfig } from '../agent/voice/types'
+import type { VoiceSessionEvents } from '../agent/voice/VoiceSession'
+
 export interface AgentConfig {
+  /** Adapter type */
   adapter?: 'livekit' | 'custom'
+  /** LiveKit-specific configuration */
   livekit?: LiveKitConfig
+  /** Pipeline type (legacy - prefer livekit.voice) */
   pipeline?: PipelineConfig
 }
 
 export interface LiveKitConfig {
+  // ---------------------------------------------------------------------------
+  // Connection
+  // ---------------------------------------------------------------------------
+  
+  /** LiveKit server URL (wss://...) */
   url?: string
+  /** Pre-generated access token */
   token?: string
+  /** Token endpoint URL for fetching tokens */
   tokenEndpoint?: string
+  /** Room name to join */
   roomName?: string
   /** API Key for local token generation (dev only) */
   apiKey?: string
   /** API Secret for local token generation (dev only - NEVER expose in production) */
   apiSecret?: string
+
+  // ---------------------------------------------------------------------------
+  // Voice Pipeline Configuration
+  // ---------------------------------------------------------------------------
+  
+  /** Complete voice pipeline configuration */
+  voice?: VoicePipelineConfig
+
+  // ---------------------------------------------------------------------------
+  // Session Options
+  // ---------------------------------------------------------------------------
+  
+  /** Agent instructions/system prompt */
+  instructions?: string
+  /** User away timeout in seconds */
+  userAwayTimeout?: number
+  /** Minimum consecutive speech delay */
+  minConsecutiveSpeechDelay?: number
+
+  // ---------------------------------------------------------------------------
+  // Room I/O Options
+  // ---------------------------------------------------------------------------
+  
+  /** Enable text input */
+  textInputEnabled?: boolean
+  /** Enable audio input */
+  audioInputEnabled?: boolean
+  /** Enable video input */
+  videoInputEnabled?: boolean
+  /** Enable text output (transcription) */
+  textOutputEnabled?: boolean
+  /** Enable audio output */
+  audioOutputEnabled?: boolean
+  /** Sync transcription with audio */
+  syncTranscription?: boolean
+
+  // ---------------------------------------------------------------------------
+  // Room Connection Options
+  // ---------------------------------------------------------------------------
+  
+  /** Auto-subscribe to tracks */
+  autoSubscribe?: boolean
+  /** Enable dynacast */
+  dynacast?: boolean
+  /** Enable adaptive streaming */
+  adaptiveStream?: boolean
+  /** Auto-reconnect on disconnect */
+  autoReconnect?: boolean
+  /** Number of reconnection attempts */
+  reconnectAttempts?: number
+
+  // ---------------------------------------------------------------------------
+  // Participant Options
+  // ---------------------------------------------------------------------------
+  
+  /** Linked participant identity */
+  participantIdentity?: string
+  /** Close session when participant disconnects */
+  closeOnDisconnect?: boolean
+  /** Delete room when session ends */
+  deleteRoomOnClose?: boolean
+
+  // ---------------------------------------------------------------------------
+  // Audio Options (Legacy - prefer voice.enhancements)
+  // ---------------------------------------------------------------------------
+  
+  /** Enable echo cancellation */
+  echoCancellation?: boolean
+  /** Enable noise suppression */
+  noiseSuppression?: boolean
+  /** Enable auto gain control */
+  autoGainControl?: boolean
+
+  // ---------------------------------------------------------------------------
+  // Events
+  // ---------------------------------------------------------------------------
+  
+  /** Voice session event callbacks */
+  events?: VoiceSessionEvents
 }
 
 export interface PipelineConfig {
