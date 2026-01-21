@@ -18,46 +18,124 @@
     </div>
   </section>
 
-  <!-- Audio Reactivity -->
+  <!-- Master Toggle -->
   <section class="panel-section">
-    <h3>Audio Reactivity</h3>
-    <div class="slider-group">
-      <div class="control-row">
-        <label>Reactivity</label>
-        <input type="range" id="audio-reactivity" min="0" max="5" step="0.1" value="1">
-        <span class="value">1.0</span>
+    <h3>Audio Effects</h3>
+    <div class="checkbox-row">
+      <label class="checkbox-label">
+        <input type="checkbox" id="audio-enabled" checked>
+        <span class="checkbox-custom"></span>
+        Enable Audio Reactivity
+      </label>
+    </div>
+  </section>
+
+  <!-- Audio Reactivity -->
+  <section class="panel-section collapsible">
+    <h3 class="section-toggle">
+      <span>Reactivity</span>
+      <iconify-icon icon="ph:caret-down" class="toggle-icon"></iconify-icon>
+    </h3>
+    <div class="section-content">
+      <div class="slider-group">
+        <div class="control-row">
+          <label>Intensity</label>
+          <input type="range" id="audio-reactivity" min="0" max="5" step="0.1" value="1.9">
+          <span class="value">1.9</span>
+        </div>
+        <div class="control-row">
+          <label>Sensitivity</label>
+          <input type="range" id="audio-sensitivity" min="0" max="0.3" step="0.005" value="0.075">
+          <span class="value">0.075</span>
+        </div>
+        <div class="control-row">
+          <label>Breathing</label>
+          <input type="range" id="audio-breathing" min="0" max="0.2" step="0.005" value="0.035">
+          <span class="value">0.035</span>
+        </div>
       </div>
-      <div class="control-row">
-        <label>Sensitivity</label>
-        <input type="range" id="audio-sensitivity" min="0" max="0.3" step="0.005" value="0.1">
-        <span class="value">0.100</span>
-      </div>
-      <div class="control-row">
-        <label>Breathing</label>
-        <input type="range" id="audio-breathing" min="0" max="0.2" step="0.005" value="0.05">
-        <span class="value">0.050</span>
+    </div>
+  </section>
+
+  <!-- Response Dynamics -->
+  <section class="panel-section collapsible">
+    <h3 class="section-toggle">
+      <span>Response Dynamics</span>
+      <iconify-icon icon="ph:caret-down" class="toggle-icon"></iconify-icon>
+    </h3>
+    <div class="section-content">
+      <div class="slider-group">
+        <div class="control-row">
+          <label>Speed</label>
+          <input type="range" id="response-speed" min="0" max="1" step="0.05" value="0.75">
+          <span class="value">0.75</span>
+        </div>
+        <div class="control-row">
+          <label>Transient</label>
+          <input type="range" id="transient-boost" min="0" max="1" step="0.05" value="0.5">
+          <span class="value">0.50</span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Frequency Response -->
-  <section class="panel-section">
-    <h3>Frequency Response</h3>
-    <div class="slider-group">
-      <div class="control-row">
-        <label>Bass Spike</label>
-        <input type="range" id="bass-spike" min="0" max="2" step="0.05" value="1">
-        <span class="value">1.00</span>
+  <section class="panel-section collapsible">
+    <h3 class="section-toggle">
+      <span>Frequency Spikes</span>
+      <iconify-icon icon="ph:caret-down" class="toggle-icon"></iconify-icon>
+    </h3>
+    <div class="section-content">
+      <div class="slider-group">
+        <div class="control-row">
+          <label>Bass</label>
+          <input type="range" id="bass-spike" min="0" max="2" step="0.05" value="0.65">
+          <span class="value">0.65</span>
+        </div>
+        <div class="control-row">
+          <label>Mid</label>
+          <input type="range" id="mid-spike" min="0" max="2" step="0.05" value="0.5">
+          <span class="value">0.50</span>
+        </div>
+        <div class="control-row">
+          <label>High</label>
+          <input type="range" id="high-spike" min="0" max="2" step="0.05" value="0.38">
+          <span class="value">0.38</span>
+        </div>
       </div>
-      <div class="control-row">
-        <label>Mid Spike</label>
-        <input type="range" id="mid-spike" min="0" max="2" step="0.05" value="0.5">
-        <span class="value">0.50</span>
+    </div>
+  </section>
+
+  <!-- Time Modulation -->
+  <section class="panel-section collapsible collapsed">
+    <h3 class="section-toggle">
+      <span>Time Modulation</span>
+      <iconify-icon icon="ph:caret-down" class="toggle-icon"></iconify-icon>
+    </h3>
+    <div class="section-content">
+      <div class="checkbox-row" style="margin-bottom: 12px">
+        <label class="checkbox-label">
+          <input type="checkbox" id="time-enabled">
+          <span class="checkbox-custom"></span>
+          Enable Time Effects
+        </label>
       </div>
-      <div class="control-row">
-        <label>High Spike</label>
-        <input type="range" id="high-spike" min="0" max="2" step="0.05" value="0.3">
-        <span class="value">0.30</span>
+      <div class="slider-group">
+        <div class="control-row">
+          <label>Mid Time</label>
+          <input type="range" id="mid-time" min="0" max="0.5" step="0.01" value="0.1">
+          <span class="value">0.10</span>
+        </div>
+        <div class="control-row">
+          <label>High Time</label>
+          <input type="range" id="high-time" min="0" max="0.5" step="0.01" value="0.18">
+          <span class="value">0.18</span>
+        </div>
+        <div class="control-row">
+          <label>Ultra Time</label>
+          <input type="range" id="ultra-time" min="0" max="0.5" step="0.01" value="0.08">
+          <span class="value">0.08</span>
+        </div>
       </div>
     </div>
   </section>

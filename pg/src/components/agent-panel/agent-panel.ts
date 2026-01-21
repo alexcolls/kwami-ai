@@ -9,8 +9,9 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
 
   const $ = <T extends HTMLElement>(sel: string) => panel.querySelector<T>(sel)!
 
-  let isConnected = false
   let authMode: 'local' | 'endpoint' = 'local'
+  let sessionStartTime: number | null = null
+  let durationInterval: ReturnType<typeof setInterval> | null = null
 
   // Initialize from config
   const config = kwami.agent.getConfig()
@@ -41,18 +42,14 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
     })
   })
 
-  function updateConnectionUI(connected: boolean) {
-    isConnected = connected
-    
+  function updateConnectionUI(connected: boolean, roomName?: string, userId?: string) {
     const badge = $('#connection-badge')
     const statusIcon = $('#status-icon')
     const statusLabel = $('#status-label')
     const statusDetail = $('#status-detail')
     const connectBtn = $<HTMLButtonElement>('#connect-btn')
     const disconnectBtn = $<HTMLButtonElement>('#disconnect-btn')
-    const messageInput = $<HTMLInputElement>('#message-input')
-    const sendBtn = $<HTMLButtonElement>('#send-btn')
-    const interruptBtn = $<HTMLButtonElement>('#interrupt-btn')
+    const sessionSection = $('#session-info-section')
 
     if (connected) {
       badge.className = 'connection-badge connected'
@@ -62,9 +59,20 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
       statusDetail.textContent = 'Voice pipeline active'
       connectBtn.disabled = true
       disconnectBtn.disabled = false
-      messageInput.disabled = false
-      sendBtn.disabled = false
-      interruptBtn.disabled = false
+      
+      // Show session info
+      sessionSection.style.display = 'block'
+      $('#session-room').textContent = roomName || '-'
+      $('#session-user').textContent = userId || '-'
+      
+      // Start duration timer
+      sessionStartTime = Date.now()
+      durationInterval = setInterval(updateDuration, 1000)
+      
+      // Emit connection event
+      window.dispatchEvent(new CustomEvent('kwami:connected', { 
+        detail: { roomName, userId } 
+      }))
     } else {
       badge.className = 'connection-badge disconnected'
       badge.innerHTML = '<span class="badge-dot"></span>Disconnected'
@@ -73,30 +81,28 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
       statusDetail.textContent = 'Configure and connect to start'
       connectBtn.disabled = false
       disconnectBtn.disabled = true
-      messageInput.disabled = true
-      sendBtn.disabled = true
-      interruptBtn.disabled = true
+      
+      // Hide session info
+      sessionSection.style.display = 'none'
+      
+      // Stop duration timer
+      if (durationInterval) {
+        clearInterval(durationInterval)
+        durationInterval = null
+      }
+      sessionStartTime = null
+      
+      // Emit disconnection event
+      window.dispatchEvent(new CustomEvent('kwami:disconnected'))
     }
   }
 
-  function addMessage(role: 'user' | 'assistant' | 'system', content: string) {
-    const log = $('#conversation-log')
-    const empty = log.querySelector('.log-empty')
-    if (empty) empty.remove()
-
-    const messageEl = document.createElement('div')
-    messageEl.className = `log-message ${role}`
-    messageEl.innerHTML = `
-      <div class="message-avatar">
-        <iconify-icon icon="${role === 'user' ? 'ph:user-duotone' : role === 'assistant' ? 'ph:robot-duotone' : 'ph:info-duotone'}"></iconify-icon>
-      </div>
-      <div class="message-content">
-        <span class="message-role">${role === 'user' ? 'You' : role === 'assistant' ? 'Kwami' : 'System'}</span>
-        <p>${content}</p>
-      </div>
-    `
-    log.appendChild(messageEl)
-    log.scrollTop = log.scrollHeight
+  function updateDuration() {
+    if (!sessionStartTime) return
+    const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000)
+    const mins = Math.floor(elapsed / 60)
+    const secs = elapsed % 60
+    $('#session-duration').textContent = `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   // Connect button
@@ -106,7 +112,9 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
     const userId = $<HTMLInputElement>('#user-id').value.trim()
 
     if (!url) {
-      addMessage('system', '⚠️ Please configure LiveKit Server URL')
+      window.dispatchEvent(new CustomEvent('kwami:message', { 
+        detail: { role: 'system', content: '⚠️ Please configure LiveKit Server URL' }
+      }))
       return
     }
 
@@ -117,7 +125,9 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
       const apiSecret = $<HTMLInputElement>('#livekit-api-secret').value.trim()
       
       if (!apiKey || !apiSecret) {
-        addMessage('system', '⚠️ Please provide API Key and Secret for local development')
+        window.dispatchEvent(new CustomEvent('kwami:message', { 
+          detail: { role: 'system', content: '⚠️ Please provide API Key and Secret for local development' }
+        }))
         return
       }
       livekitConfig = { ...livekitConfig, apiKey, apiSecret }
@@ -125,14 +135,18 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
       const tokenEndpoint = $<HTMLInputElement>('#livekit-token-endpoint').value.trim()
       
       if (!tokenEndpoint) {
-        addMessage('system', '⚠️ Please provide Token Endpoint URL')
+        window.dispatchEvent(new CustomEvent('kwami:message', { 
+          detail: { role: 'system', content: '⚠️ Please provide Token Endpoint URL' }
+        }))
         return
       }
       livekitConfig = { ...livekitConfig, tokenEndpoint }
     }
 
     try {
-      addMessage('system', '🔄 Connecting to LiveKit...')
+      window.dispatchEvent(new CustomEvent('kwami:message', { 
+        detail: { role: 'system', content: '🔄 Connecting to LiveKit...' }
+      }))
       
       kwami.agent.updateConfig({
         livekit: livekitConfig
@@ -140,20 +154,30 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
 
       await kwami.connect(userId, {
         onUserTranscript: (transcript) => {
-          addMessage('user', transcript)
+          window.dispatchEvent(new CustomEvent('kwami:message', { 
+            detail: { role: 'user', content: transcript }
+          }))
         },
         onAgentResponse: (text) => {
-          addMessage('assistant', text)
+          window.dispatchEvent(new CustomEvent('kwami:message', { 
+            detail: { role: 'assistant', content: text }
+          }))
         },
         onError: (error) => {
-          addMessage('system', `❌ Error: ${error.message}`)
+          window.dispatchEvent(new CustomEvent('kwami:message', { 
+            detail: { role: 'system', content: `❌ Error: ${error.message}` }
+          }))
         },
       })
 
-      updateConnectionUI(true)
-      addMessage('system', '✅ Connected successfully!')
+      updateConnectionUI(true, roomName, userId)
+      window.dispatchEvent(new CustomEvent('kwami:message', { 
+        detail: { role: 'system', content: '✅ Connected successfully!' }
+      }))
     } catch (error) {
-      addMessage('system', `❌ Connection failed: ${(error as Error).message}`)
+      window.dispatchEvent(new CustomEvent('kwami:message', { 
+        detail: { role: 'system', content: `❌ Connection failed: ${(error as Error).message}` }
+      }))
       updateConnectionUI(false)
     }
   })
@@ -163,43 +187,14 @@ export function createAgentPanel(kwami: Kwami): HTMLElement {
     try {
       await kwami.disconnect()
       updateConnectionUI(false)
-      addMessage('system', '🔌 Disconnected')
+      window.dispatchEvent(new CustomEvent('kwami:message', { 
+        detail: { role: 'system', content: '🔌 Disconnected' }
+      }))
     } catch (error) {
-      addMessage('system', `❌ Disconnect error: ${(error as Error).message}`)
+      window.dispatchEvent(new CustomEvent('kwami:message', { 
+        detail: { role: 'system', content: `❌ Disconnect error: ${(error as Error).message}` }
+      }))
     }
-  })
-
-  // Send message
-  const sendMessage = () => {
-    const input = $<HTMLInputElement>('#message-input')
-    const text = input.value.trim()
-    if (!text || !isConnected) return
-
-    kwami.sendMessage(text)
-    addMessage('user', text)
-    input.value = ''
-  }
-
-  $('#send-btn').addEventListener('click', sendMessage)
-  $('#message-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendMessage()
-  })
-
-  // Interrupt button
-  $('#interrupt-btn').addEventListener('click', () => {
-    kwami.interrupt()
-    addMessage('system', '🛑 Interrupted')
-  })
-
-  // Clear log button
-  $('#clear-log-btn').addEventListener('click', () => {
-    const log = $('#conversation-log')
-    log.innerHTML = `
-      <div class="log-empty">
-        <iconify-icon icon="ph:chat-circle-dots-duotone"></iconify-icon>
-        <span>No messages yet</span>
-      </div>
-    `
   })
 
   // Check initial connection state

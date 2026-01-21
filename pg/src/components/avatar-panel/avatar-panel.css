@@ -2,6 +2,63 @@
    AVATAR PANEL - Component Styles
    ===================================================== */
 
+/* Renderer Selector */
+.renderer-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.renderer-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  background: var(--surface-1);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.renderer-option:hover {
+  background: var(--surface-2);
+  transform: translateY(-2px);
+}
+
+.renderer-option.active {
+  background: var(--accent-glow);
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.renderer-option input {
+  display: none;
+}
+
+.renderer-icon {
+  font-size: 28px;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.renderer-option.active .renderer-icon {
+  color: var(--accent-primary);
+}
+
+.renderer-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.renderer-option.active .renderer-label {
+  color: var(--text-primary);
+}
+
 /* Skin Selector */
 .skin-selector {
   display: flex;
@@ -64,4 +121,86 @@
 
 .skin-option.active .skin-label {
   color: var(--text-primary);
+}
+
+/* Formation Selector (Crystal) */
+.formation-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.formation-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: var(--surface-1);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.formation-option:hover {
+  background: var(--surface-2);
+  transform: translateY(-2px);
+}
+
+.formation-option.active {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(124, 77, 255, 0.15));
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 20px rgba(0, 229, 255, 0.2);
+}
+
+.formation-option input {
+  display: none;
+}
+
+.formation-icon {
+  font-size: 24px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.formation-option.active .formation-icon {
+  color: var(--accent-primary);
+  filter: drop-shadow(0 0 8px var(--accent-primary));
+}
+
+.formation-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--text-secondary);
+}
+
+.formation-option.active .formation-label {
+  color: var(--text-primary);
+}
+
+/* Crystal-specific color labels */
+#crystal-controls .color-grid .control-group label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Animation for renderer switch */
+#blob-controls,
+#crystal-controls {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

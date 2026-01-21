@@ -1,6 +1,6 @@
 <div class="panel-header">
   <iconify-icon icon="ph:robot-duotone" class="panel-icon"></iconify-icon>
-  <h2>Agent</h2>
+  <h2>Connection</h2>
   <span class="connection-badge disconnected" id="connection-badge">
     <span class="badge-dot"></span>
     Disconnected
@@ -24,7 +24,7 @@
 
   <!-- LiveKit Configuration -->
   <section class="panel-section">
-    <h3>Configuration</h3>
+    <h3>Server Configuration</h3>
     <div class="config-form">
       <div class="form-group">
         <label for="livekit-url">
@@ -109,7 +109,7 @@
 
   <!-- Connection Actions -->
   <section class="panel-section">
-    <h3>Actions</h3>
+    <h3>Session Control</h3>
     <div class="action-buttons">
       <button class="action-btn primary" id="connect-btn">
         <iconify-icon icon="ph:play-duotone"></iconify-icon>
@@ -122,35 +122,22 @@
     </div>
   </section>
 
-  <!-- Conversation Log -->
-  <section class="panel-section">
-    <h3>Conversation</h3>
-    <div class="conversation-log" id="conversation-log">
-      <div class="log-empty">
-        <iconify-icon icon="ph:chat-circle-dots-duotone"></iconify-icon>
-        <span>No messages yet</span>
+  <!-- Session Info -->
+  <section class="panel-section" id="session-info-section" style="display: none;">
+    <h3>Session Info</h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Room</span>
+        <span class="info-value" id="session-room">-</span>
       </div>
-    </div>
-    <div class="message-input-container">
-      <input type="text" id="message-input" placeholder="Type a message..." disabled>
-      <button class="send-btn" id="send-btn" disabled>
-        <iconify-icon icon="ph:paper-plane-right-duotone"></iconify-icon>
-      </button>
-    </div>
-  </section>
-
-  <!-- Quick Actions -->
-  <section class="panel-section">
-    <h3>Quick Actions</h3>
-    <div class="action-buttons">
-      <button class="action-btn" id="interrupt-btn" disabled>
-        <iconify-icon icon="ph:hand-palm-duotone"></iconify-icon>
-        Interrupt
-      </button>
-      <button class="action-btn" id="clear-log-btn">
-        <iconify-icon icon="ph:trash-duotone"></iconify-icon>
-        Clear Log
-      </button>
+      <div class="info-item">
+        <span class="info-label">User</span>
+        <span class="info-value" id="session-user">-</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Duration</span>
+        <span class="info-value" id="session-duration">0:00</span>
+      </div>
     </div>
   </section>
 </div>
