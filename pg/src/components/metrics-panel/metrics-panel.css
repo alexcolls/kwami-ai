@@ -1,0 +1,223 @@
+/* =====================================================
+   METRICS PANEL - Component Styles
+   ===================================================== */
+
+/* Status Pill */
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--surface-1);
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.status-pill.active {
+  color: var(--success);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.status-pill.active .pulse-dot {
+  background: var(--success);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* Section headers with icons */
+.panel-section h3 iconify-icon {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Config Summary (like the screenshot) */
+.config-summary {
+  background: var(--surface-1);
+  border-radius: 10px;
+  padding: 8px 0;
+}
+
+.config-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+}
+
+.config-row.sub {
+  padding-left: 28px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.config-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.config-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.config-value.accent {
+  color: var(--accent-secondary);
+}
+
+.config-value.boolean {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+.config-value.boolean.true {
+  color: var(--accent-secondary);
+}
+
+.config-value.boolean.false {
+  color: var(--text-muted);
+}
+
+/* Latency Grid */
+.latency-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--surface-1);
+  border-radius: 10px;
+  padding: 8px 0;
+}
+
+.latency-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.latency-item.overall {
+  background: rgba(124, 92, 255, 0.1);
+  margin-top: 4px;
+}
+
+.latency-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.latency-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-secondary);
+  font-family: var(--font-mono);
+}
+
+.latency-item.overall .latency-value {
+  color: var(--accent-primary);
+  font-size: 14px;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.stat-item {
+  background: var(--surface-1);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Chart Placeholder */
+.chart-placeholder {
+  background: var(--surface-1);
+  border-radius: 10px;
+  height: 100px;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 100%;
+  gap: 6px;
+}
+
+.chart-bar {
+  flex: 1;
+  background: linear-gradient(to top, var(--accent-primary), var(--accent-secondary));
+  border-radius: 3px 3px 0 0;
+  transition: height 0.3s ease;
+  min-height: 4px;
+}
+
+.chart-empty {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  background: var(--surface-1);
+}
+
+.chart-empty iconify-icon {
+  font-size: 24px;
+  opacity: 0.5;
+}
+
+.chart-empty.hidden {
+  display: none;
+}
