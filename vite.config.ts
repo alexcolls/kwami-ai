@@ -1,8 +1,36 @@
-import { defineConfig } from 'vite'
-import { resolve } from 'path'
-import { fileURLToPath } from 'url'
+import { defineConfig, type Plugin } from 'vite';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
+
+/**
+ * Plugin to inline ?raw imports in library mode.
+ * Vite's built-in ?raw handling doesn't work with preserveModules.
+ */
+function inlineRawPlugin(): Plugin {
+  return {
+    name: 'inline-raw',
+    enforce: 'pre',
+    resolveId(source, importer) {
+      if (source.endsWith('?raw') && importer) {
+        const cleanPath = source.slice(0, -4) // remove ?raw
+        const absolutePath = resolve(dirname(importer), cleanPath)
+        return `\0raw:${absolutePath}`
+      }
+      return null
+    },
+    load(id) {
+      if (id.startsWith('\0raw:')) {
+        const filePath = id.slice(5)
+        const content = readFileSync(filePath, 'utf-8')
+        return `export default ${JSON.stringify(content)};`
+      }
+      return null
+    },
+  }
+}
 
 export default defineConfig({
   build: {
@@ -12,7 +40,6 @@ export default defineConfig({
       fileName: 'index',
     },
     outDir: 'dist',
-    emptyDirBeforeWrite: true,
     rollupOptions: {
       external: ['three', 'livekit-client', 'simplex-noise'],
       output: {
@@ -24,6 +51,5 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
   },
-  plugins: [],
-  assetsInclude: ['**/*.glsl'],
+  plugins: [inlineRawPlugin()],
 })
