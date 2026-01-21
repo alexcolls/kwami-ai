@@ -18,6 +18,7 @@
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
     "dev": "vite build --watch",
+    "dev:all": "pnpm dev & pnpm dev:pg",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\" \"pg/src/**/*.ts\"",
