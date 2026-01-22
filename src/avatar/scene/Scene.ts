@@ -47,6 +47,13 @@ export class Scene {
   }
 
   /**
+   * Update the scene background dynamically
+   */
+  setBackground(config: SceneConfig['background']): void {
+    applySceneBackground(this.scene, { background: config })
+  }
+
+  /**
    * Dispose of all resources
    */
   dispose(): void {

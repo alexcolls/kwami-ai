@@ -118,6 +118,7 @@ class LiveKitPipeline implements AgentPipeline {
   private voiceSession: VoiceSession
   private room: Room | null = null
   private localAudioTrack: LocalAudioTrack | null = null
+  private agentAudioStream: MediaStream | null = null
   
   // Timestamps for latency tracking
   private sttStartTime = 0
@@ -129,6 +130,7 @@ class LiveKitPipeline implements AgentPipeline {
   private userSpeechCb?: (transcript: string) => void
   private agentTextCb?: (text: string) => void
   private interimTranscriptCb?: (text: string) => void
+  private onAgentAudioStreamCb?: (stream: MediaStream) => void
 
   constructor(config: LiveKitAdapterConfig, voiceSession: VoiceSession) {
     this.config = config
@@ -221,11 +223,25 @@ class LiveKitPipeline implements AgentPipeline {
       logger.debug(`Track subscribed: ${track.kind} from ${participant.identity}`)
       
       if (track.kind === Track.Kind.Audio) {
+        // Only play audio from the agent participant, not other users
+        // Agent identity typically starts with 'agent' or contains it
+        const isAgent = participant.identity.toLowerCase().includes('agent') ||
+                        participant.identity.toLowerCase().startsWith('kwami')
+        
+        if (!isAgent) {
+          logger.debug(`Skipping audio from non-agent participant: ${participant.identity}`)
+          return
+        }
+        
         // This is the agent's audio response
         // Attach to an audio element to play it
         const audioElement = track.attach()
         audioElement.id = 'kwami-agent-audio'
+        
         document.body.appendChild(audioElement)
+        
+        // Connect agent audio to the avatar's audio analyzer for visualization
+        this.connectAgentAudioToAvatar(track)
         
         // Update state to speaking when agent audio plays
         audioElement.onplay = () => {
@@ -233,6 +249,12 @@ class LiveKitPipeline implements AgentPipeline {
         }
         audioElement.onended = () => {
           this.voiceSession.setState('listening')
+        }
+        audioElement.onpause = () => {
+          // Only switch to listening if fully stopped, not just buffering
+          if (audioElement.ended || audioElement.currentTime === 0) {
+            this.voiceSession.setState('listening')
+          }
         }
       }
     })
@@ -302,6 +324,28 @@ class LiveKitPipeline implements AgentPipeline {
     this.room.on(RoomEvent.Reconnected, () => {
       logger.info('Reconnected to room')
     })
+  }
+
+  /**
+   * Connect agent audio track to avatar for visualization
+   * Creates a MediaStream from the track that can be analyzed
+   */
+  private connectAgentAudioToAvatar(track: RemoteTrack): void {
+    try {
+      // Get the MediaStreamTrack from the LiveKit track
+      const mediaStreamTrack = track.mediaStreamTrack
+      if (mediaStreamTrack) {
+        // Create a MediaStream containing the agent's audio
+        this.agentAudioStream = new MediaStream([mediaStreamTrack])
+        
+        // Notify any listeners that agent audio is available
+        this.onAgentAudioStreamCb?.(this.agentAudioStream)
+        
+        logger.debug('Connected agent audio to avatar visualization')
+      }
+    } catch (error) {
+      logger.warn('Failed to connect agent audio to avatar:', error)
+    }
   }
 
   /**
@@ -425,7 +469,13 @@ class LiveKitPipeline implements AgentPipeline {
       this.localAudioTrack = null
     }
 
-    // Remove agent audio element
+    // Clean up agent audio stream
+    if (this.agentAudioStream) {
+      this.agentAudioStream.getTracks().forEach(track => track.stop())
+      this.agentAudioStream = null
+    }
+
+    // Remove agent audio element from DOM
     const audioEl = document.getElementById('kwami-agent-audio')
     if (audioEl) {
       audioEl.remove()
@@ -474,6 +524,25 @@ class LiveKitPipeline implements AgentPipeline {
         if (!isFinal) callback(text)
       },
     })
+  }
+
+  /**
+   * Register callback for when agent audio stream becomes available
+   * This allows connecting the audio to avatar visualization
+   */
+  onAgentAudioStream(callback: (stream: MediaStream) => void): void {
+    this.onAgentAudioStreamCb = callback
+    // If stream already exists, call immediately
+    if (this.agentAudioStream) {
+      callback(this.agentAudioStream)
+    }
+  }
+
+  /**
+   * Get the current agent audio stream if available
+   */
+  getAgentAudioStream(): MediaStream | null {
+    return this.agentAudioStream
   }
 
   // ---------------------------------------------------------------------------

@@ -198,6 +198,53 @@ export class Avatar {
   }
 
   /**
+   * Switch to a different renderer type dynamically
+   * Preserves the connection and state
+   */
+  switchRenderer(newRenderer: 'blob' | 'crystal'): void {
+    if (this.currentRenderer === newRenderer) {
+      logger.debug(`Already using ${newRenderer} renderer`)
+      return
+    }
+
+    logger.info(`Switching renderer from ${this.currentRenderer} to ${newRenderer}`)
+
+    // Save current state
+    const savedState = this.currentState
+
+    // Dispose current renderer
+    if (this.currentRenderer === 'blob' && this.blob) {
+      this.scene.scene.remove(this.blob.getMesh())
+      this.blob.dispose()
+      this.blob = null
+    } else if (this.currentRenderer === 'crystal' && this.crystal) {
+      this.scene.scene.remove(this.crystal.getMesh())
+      this.crystal.dispose()
+      this.crystal = null
+    }
+
+    // Initialize new renderer
+    this.currentRenderer = newRenderer
+    if (newRenderer === 'blob') {
+      this.initBlobRenderer()
+    } else if (newRenderer === 'crystal') {
+      this.initCrystalRenderer()
+    }
+
+    // Restore state
+    this.currentState = 'idle' // Reset first
+    this.setState(savedState)
+
+    // Update background gradient for the new renderer
+    const newColors = newRenderer === 'crystal'
+      ? ['#050510', '#0a0a20', '#050510']
+      : ['#0a0a1a', '#1a1a3a', '#0a0a1a']
+    this.scene.setBackground({ type: 'gradient', gradient: { colors: newColors, direction: 'radial' } })
+
+    logger.info(`Renderer switched to ${newRenderer}`)
+  }
+
+  /**
    * Get the blob instance (for direct control)
    */
   getBlob(): Blob | null {

@@ -31,6 +31,7 @@ export class Agent {
   private onUserSpeechCallback?: (transcript: string) => void
   private onAgentTextCallback?: (text: string) => void
   private _onErrorCallback?: (error: Error) => void
+  private onAgentAudioStreamCallback?: (stream: MediaStream) => void
 
   constructor(config?: AgentConfig, _kwamiRef?: KwamiRef) {
     this.config = config ?? {}
@@ -74,6 +75,12 @@ export class Agent {
     }
     if (this.onAgentTextCallback) {
       this.pipeline.onAgentText(this.onAgentTextCallback)
+    }
+    
+    // Wire up agent audio stream callback for avatar visualization
+    if (this.onAgentAudioStreamCallback && 'onAgentAudioStream' in this.pipeline) {
+      (this.pipeline as AgentPipeline & { onAgentAudioStream: (cb: (s: MediaStream) => void) => void })
+        .onAgentAudioStream(this.onAgentAudioStreamCallback)
     }
     
     // Connect with full Kwami config for agent dispatch
@@ -132,7 +139,7 @@ export class Agent {
    * This sends a data message to the running agent to update its config
    */
   syncConfigToBackend(
-    type: 'voice' | 'persona' | 'tools' | 'full',
+    type: 'voice' | 'persona' | 'tools' | 'full' | 'llm',
     config: VoicePipelineConfig | PersonaConfig | ToolDefinition[] | Record<string, unknown>
   ): void {
     if (!this.pipeline?.isConnected()) {
@@ -145,6 +152,40 @@ export class Agent {
       (this.pipeline as AgentPipeline & { sendConfigUpdate: (type: string, config: unknown) => void })
         .sendConfigUpdate(type, config)
     }
+  }
+
+  /**
+   * Get the current pipeline (for direct access to sendConfigUpdate)
+   */
+  getPipeline(): AgentPipeline | null {
+    return this.pipeline
+  }
+
+  /**
+   * Update voice settings mid-conversation (voice, speed, language)
+   * This is a convenience method for common voice updates
+   */
+  updateVoiceLive(options: {
+    voice?: string
+    speed?: number
+    language?: string
+    model?: string
+  }): void {
+    this.syncConfigToBackend('voice', options)
+    logger.info('Voice settings updated live', options)
+  }
+
+  /**
+   * Update LLM settings mid-conversation (provider, model, temperature)
+   * Note: Changing LLM provider requires agent restart on the backend
+   */
+  updateLlmLive(options: {
+    provider?: string
+    model?: string
+    temperature?: number
+  }): void {
+    this.syncConfigToBackend('llm', options)
+    logger.info('LLM settings updated live', options)
   }
 
   // ---------------------------------------------------------------------------
@@ -179,6 +220,31 @@ export class Agent {
    */
   onError(callback: (error: Error) => void): void {
     this._onErrorCallback = callback
+  }
+
+  /**
+   * Register callback for agent audio stream (for avatar visualization)
+   */
+  onAgentAudioStream(callback: (stream: MediaStream) => void): void {
+    this.onAgentAudioStreamCallback = callback
+    // If pipeline exists and has the method, register immediately
+    if (this.pipeline && 'onAgentAudioStream' in this.pipeline) {
+      (this.pipeline as AgentPipeline & { onAgentAudioStream: (cb: (s: MediaStream) => void) => void })
+        .onAgentAudioStream(callback)
+    }
+  }
+
+  /**
+   * Register callback for voice session state changes
+   */
+  onStateChange(callback: (state: 'idle' | 'listening' | 'thinking' | 'speaking' | 'initializing') => void): void {
+    // Wire up via adapter's voice session
+    if (this.adapter && 'getVoiceSession' in this.adapter) {
+      const voiceSession = (this.adapter as LiveKitAdapter).getVoiceSession()
+      voiceSession.on({
+        onStateChange: callback
+      })
+    }
   }
 
   // ---------------------------------------------------------------------------

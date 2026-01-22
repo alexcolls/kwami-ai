@@ -147,6 +147,20 @@ export class Kwami {
       this.callbacks.onError?.(error)
       this.setState('idle')
     })
+
+    // Listen for agent audio stream and connect to avatar for visualization
+    this.agent.onAgentAudioStream((stream) => {
+      this.avatar.connectMediaStream(stream).catch(e => 
+        logger.error('Failed to connect agent audio to avatar:', e)
+      )
+    })
+
+    // Wire up voice session state changes to avatar
+    // Map 'initializing' to 'idle' since avatar doesn't have that state
+    this.agent.onStateChange((state) => {
+      const mappedState = state === 'initializing' ? 'idle' : state
+      this.setState(mappedState)
+    })
   }
 
   /**
