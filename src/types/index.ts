@@ -257,10 +257,6 @@ export interface LiveKitConfig {
   tokenEndpoint?: string
   /** Room name to join */
   roomName?: string
-  /** API Key for local token generation (dev only) */
-  apiKey?: string
-  /** API Secret for local token generation (dev only - NEVER expose in production) */
-  apiSecret?: string
 
   // ---------------------------------------------------------------------------
   // Voice Pipeline Configuration

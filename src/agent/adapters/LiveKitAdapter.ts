@@ -53,12 +53,8 @@ export class LiveKitAdapter implements AgentAdapter {
   }
 
   isConfigured(): boolean {
-    // Need either a token, token endpoint, or api key+secret for local dev
-    return !!(
-      this.config.token || 
-      this.config.tokenEndpoint ||
-      (this.config.apiKey && this.config.apiSecret)
-    )
+    // Need either a token or token endpoint
+    return !!(this.config.token || this.config.tokenEndpoint)
   }
 
   createPipeline(): AgentPipeline {
@@ -145,16 +141,12 @@ class LiveKitPipeline implements AgentPipeline {
     // Get token
     let token = this.config.token
     
-    if (!token && this.config.apiKey && this.config.apiSecret) {
-      // Local development: generate token client-side
-      logger.warn('⚠️ Generating token client-side - ONLY use for local development!')
-      token = await this.generateLocalToken()
-    } else if (!token && this.config.tokenEndpoint) {
+    if (!token && this.config.tokenEndpoint) {
       token = await this.fetchToken()
     }
     
     if (!token) {
-      throw new Error('No LiveKit token available. Provide token, tokenEndpoint, or apiKey+apiSecret.')
+      throw new Error('No LiveKit token available. Provide token or tokenEndpoint.')
     }
     
     const serverUrl = this.config.url
@@ -615,15 +607,17 @@ class LiveKitPipeline implements AgentPipeline {
       throw new Error('No token endpoint configured')
     }
 
+    const roomName = this.config.roomName || `kwami-room-${Date.now()}`
+    const participantName = `kwami-user-${Date.now()}`
+
     const response = await fetch(this.config.tokenEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(this.config.apiKey ? { 'Authorization': `Bearer ${this.config.apiKey}` } : {}),
       },
       body: JSON.stringify({
-        roomName: this.config.roomName,
-        voiceConfig: this.voiceSession.toLiveKitConfig(),
+        room_name: roomName,
+        participant_name: participantName,
       }),
     })
 
@@ -632,73 +626,13 @@ class LiveKitPipeline implements AgentPipeline {
     }
 
     const data = await response.json()
+    
+    // Update room name from response if provided
+    if (data.room_name) {
+      this.config.roomName = data.room_name
+    }
+    
     return data.token
   }
 
-  /**
-   * Generate a LiveKit token locally using API key and secret.
-   * ⚠️ WARNING: This is for LOCAL DEVELOPMENT ONLY!
-   */
-  private async generateLocalToken(): Promise<string> {
-    const apiKey = this.config.apiKey
-    const apiSecret = this.config.apiSecret
-    const roomName = this.config.roomName || 'kwami-dev-room'
-    const identity = `kwami-user-${Date.now()}`
-
-    if (!apiKey || !apiSecret) {
-      throw new Error('API key and secret required for local token generation')
-    }
-
-    const header = {
-      alg: 'HS256',
-      typ: 'JWT',
-    }
-
-    const now = Math.floor(Date.now() / 1000)
-    const payload = {
-      iss: apiKey,
-      sub: identity,
-      iat: now,
-      exp: now + 86400,
-      nbf: now,
-      jti: identity,
-      video: {
-        roomJoin: true,
-        room: roomName,
-        canPublish: true,
-        canSubscribe: true,
-        canPublishData: true,
-      },
-    }
-
-    const encodedHeader = this.base64UrlEncode(JSON.stringify(header))
-    const encodedPayload = this.base64UrlEncode(JSON.stringify(payload))
-    const message = `${encodedHeader}.${encodedPayload}`
-
-    const encoder = new TextEncoder()
-    const keyData = encoder.encode(apiSecret)
-    const messageData = encoder.encode(message)
-
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      keyData,
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign']
-    )
-
-    const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData)
-    const encodedSignature = this.base64UrlEncode(
-      String.fromCharCode(...new Uint8Array(signature))
-    )
-
-    return `${message}.${encodedSignature}`
-  }
-
-  private base64UrlEncode(str: string): string {
-    return btoa(str)
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '')
-  }
 }

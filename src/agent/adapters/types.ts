@@ -112,14 +112,6 @@ export interface LiveKitAdapterConfig extends LiveKitConfig {
   /** Voice session event callbacks */
   events?: VoiceSessionEvents
 
-  // ---------------------------------------------------------------------------
-  // API Authentication (for local dev / token generation)
-  // ---------------------------------------------------------------------------
-  
-  /** API key for token endpoint or local generation */
-  apiKey?: string
-  /** API Secret for local token generation (dev only - NEVER in production) */
-  apiSecret?: string
 }
 
 /**
