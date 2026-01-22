@@ -18,7 +18,6 @@
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
     "dev": "vite build --watch",
-    "dev:all": "pnpm dev & pnpm dev:pg",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\" \"pg/src/**/*.ts\" \"scripts/**/*.ts\"",
@@ -26,11 +25,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"pg/src/**/*.ts\" \"scripts/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"pg/src/**/*.ts\" \"scripts/**/*.ts\"",
     "test": "vitest",
-    "test:run": "vitest run",
-    "install:pg": "pnpm --dir pg install",
-    "dev:pg": "pnpm --dir pg dev",
-    "build:pg": "pnpm --dir pg build",
-    "preview:pg": "pnpm --dir pg preview"
+    "test:run": "vitest run"
   },
   "keywords": [
     "ai",
