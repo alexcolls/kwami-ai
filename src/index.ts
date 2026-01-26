@@ -12,10 +12,12 @@ export { Persona } from './persona'
 export { Memory } from './memory'
 export { ToolRegistry } from './tools'
 export { SkillManager } from './skills'
+export * from './utils/logger'
+export * from './utils/api-client'
 
 // Adapters
 export { LiveKitAdapter } from './agent'
-export { ZepAdapter } from './memory'
+
 
 // Voice Pipeline (NEW)
 export { VoiceSession } from './agent'
@@ -80,7 +82,7 @@ export type {
   KwamiState,
   KwamiCallbacks,
   KwamiEvent,
-  
+
   // Avatar
   AvatarConfig,
   AvatarRenderer,
@@ -97,7 +99,7 @@ export type {
   SceneBackgroundConfig,
   CameraConfig,
   AudioConfig,
-  
+
   // Agent
   AgentConfig,
   AgentPipeline,
@@ -106,22 +108,22 @@ export type {
   LiveKitConfig,
   VoiceConfig,
   ToolDefinition,
-  
+
   // Persona
   PersonaConfig,
   EmotionalTraits,
-  
+
   // Memory
   MemoryConfig,
   MemoryAdapter,
   MemoryContext,
   MemorySearchResult,
   ZepConfig,
-  
+
   // Tools
   ToolsConfig,
   MCPConfig,
-  
+
   // Skills
   SkillsConfig,
   SkillDefinition,

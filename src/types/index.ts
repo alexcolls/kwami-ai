@@ -83,6 +83,7 @@ export interface AvatarConfig {
   blob?: BlobConfig
   crystal?: CrystalConfig
   scene?: SceneConfig
+  interaction?: InteractionConfig
   audio?: {
     files?: string[]
     preload?: 'auto' | 'metadata' | 'none'
@@ -124,6 +125,56 @@ export interface BlobConfig {
   shininess?: number
   wireframe?: boolean
   position?: { x: number; y: number }
+  amplitude?: { x: number; y: number; z: number }
+  touch?: {
+    strength?: number
+    duration?: number
+    maxPoints?: number
+  }
+  transition?: {
+    speed?: number
+    thinkingDuration?: number
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Interaction Config
+// -----------------------------------------------------------------------------
+
+export type InteractionAction =
+  | 'none'
+  | 'toggleListening'
+  | 'startListening'
+  | 'stopListening'
+  | 'toggleSpeaking'
+  | 'randomize'
+  | 'switchRenderer'
+  | 'cycleState'
+  | 'pulse'
+  | 'custom'
+
+export interface InteractionActionConfig {
+  action: InteractionAction
+  enabled?: boolean
+  customHandler?: () => void | Promise<void>
+  rendererTarget?: 'blob' | 'crystal'
+}
+
+export interface InteractionConfig {
+  click?: InteractionActionConfig
+  doubleClick?: InteractionActionConfig
+  rightClick?: InteractionActionConfig
+  doubleRightClick?: InteractionActionConfig
+  drag?: {
+    enabled?: boolean
+    sensitivity?: number
+    rotateOnDrag?: boolean
+  }
+  hover?: {
+    enabled?: boolean
+    highlightOnHover?: boolean
+    cursorStyle?: string
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -248,7 +299,7 @@ export interface LiveKitConfig {
   // ---------------------------------------------------------------------------
   // Connection
   // ---------------------------------------------------------------------------
-  
+
   /** LiveKit server URL (wss://...) */
   url?: string
   /** Pre-generated access token */
@@ -257,18 +308,20 @@ export interface LiveKitConfig {
   tokenEndpoint?: string
   /** Room name to join */
   roomName?: string
+  /** User ID for persistent identity (used for memory recall) */
+  userId?: string
 
   // ---------------------------------------------------------------------------
   // Voice Pipeline Configuration
   // ---------------------------------------------------------------------------
-  
+
   /** Complete voice pipeline configuration */
   voice?: VoicePipelineConfig
 
   // ---------------------------------------------------------------------------
   // Session Options
   // ---------------------------------------------------------------------------
-  
+
   /** Agent instructions/system prompt */
   instructions?: string
   /** User away timeout in seconds */
@@ -279,7 +332,7 @@ export interface LiveKitConfig {
   // ---------------------------------------------------------------------------
   // Room I/O Options
   // ---------------------------------------------------------------------------
-  
+
   /** Enable text input */
   textInputEnabled?: boolean
   /** Enable audio input */
@@ -296,7 +349,7 @@ export interface LiveKitConfig {
   // ---------------------------------------------------------------------------
   // Room Connection Options
   // ---------------------------------------------------------------------------
-  
+
   /** Auto-subscribe to tracks */
   autoSubscribe?: boolean
   /** Enable dynacast */
@@ -311,7 +364,7 @@ export interface LiveKitConfig {
   // ---------------------------------------------------------------------------
   // Participant Options
   // ---------------------------------------------------------------------------
-  
+
   /** Linked participant identity */
   participantIdentity?: string
   /** Close session when participant disconnects */
@@ -322,7 +375,7 @@ export interface LiveKitConfig {
   // ---------------------------------------------------------------------------
   // Audio Options (Legacy - prefer voice.enhancements)
   // ---------------------------------------------------------------------------
-  
+
   /** Enable echo cancellation */
   echoCancellation?: boolean
   /** Enable noise suppression */
@@ -333,7 +386,7 @@ export interface LiveKitConfig {
   // ---------------------------------------------------------------------------
   // Events
   // ---------------------------------------------------------------------------
-  
+
   /** Voice session event callbacks */
   events?: VoiceSessionEvents
 }
@@ -352,7 +405,11 @@ export interface AgentPipeline {
   onAgentText(callback: (text: string) => void): void
   onAgentSpeech(callback: (audio: ArrayBuffer) => void): void
   dispose(): void
+  setToolExecutor(executor: ToolExecutor): void
 }
+
+export type ToolExecutor = (name: string, args: Record<string, unknown>) => Promise<string>
+
 
 export interface PipelineConnectOptions {
   /** Unique identifier for this Kwami instance */
@@ -501,7 +558,7 @@ export interface SkillResult {
 // Events
 // -----------------------------------------------------------------------------
 
-export type KwamiEvent = 
+export type KwamiEvent =
   | { type: 'stateChange'; state: KwamiState }
   | { type: 'agentResponse'; text: string }
   | { type: 'userTranscript'; text: string }

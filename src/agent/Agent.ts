@@ -26,7 +26,8 @@ export class Agent {
   private config: AgentConfig
   private adapter: AgentAdapter | null = null
   private pipeline: AgentPipeline | null = null
-  
+  private clientTools: Map<string, (args: Record<string, unknown>) => Promise<unknown>> = new Map()
+
   // Callbacks
   private onUserSpeechCallback?: (transcript: string) => void
   private onAgentTextCallback?: (text: string) => void
@@ -40,7 +41,7 @@ export class Agent {
 
   private initAdapter(): void {
     const adapterType = this.config.adapter ?? 'livekit'
-    
+
     switch (adapterType) {
       case 'livekit':
         this.adapter = new LiveKitAdapter(this.config.livekit)
@@ -49,7 +50,7 @@ export class Agent {
         logger.warn(`Unknown adapter type: ${adapterType}, falling back to livekit`)
         this.adapter = new LiveKitAdapter(this.config.livekit)
     }
-    
+
     logger.debug(`Agent initialized with ${this.adapter.getName()} adapter`)
   }
 
@@ -61,14 +62,14 @@ export class Agent {
     if (!this.adapter) {
       throw new Error('No adapter configured')
     }
-    
+
     if (!this.adapter.isConfigured()) {
       throw new Error('Adapter is not properly configured. Check your credentials.')
     }
-    
+
     // Create pipeline from adapter
     this.pipeline = this.adapter.createPipeline()
-    
+
     // Wire up callbacks
     if (this.onUserSpeechCallback) {
       this.pipeline.onUserSpeech(this.onUserSpeechCallback)
@@ -76,15 +77,28 @@ export class Agent {
     if (this.onAgentTextCallback) {
       this.pipeline.onAgentText(this.onAgentTextCallback)
     }
-    
+
     // Wire up agent audio stream callback for avatar visualization
     if (this.onAgentAudioStreamCallback && 'onAgentAudioStream' in this.pipeline) {
       (this.pipeline as AgentPipeline & { onAgentAudioStream: (cb: (s: MediaStream) => void) => void })
         .onAgentAudioStream(this.onAgentAudioStreamCallback)
     }
-    
+
+    // Register tool executor
+    this.pipeline.setToolExecutor(this.handleToolExecution.bind(this))
+
+    // Append dynamically registered tools to options
+    const optionsWithTools = options ? { ...options } : {}
+    if (this.clientTools.size > 0) {
+      if (!optionsWithTools.tools) {
+        optionsWithTools.tools = []
+      }
+      // Note: We currently rely on the user passing 'tools' definitions in options.
+      // Ideally 'registerTool' would take definitions too.
+    }
+
     // Connect with full Kwami config for agent dispatch
-    await this.pipeline.connect(options ?? {})
+    await this.pipeline.connect(optionsWithTools)
     logger.info('Agent connected')
   }
 
@@ -127,7 +141,7 @@ export class Agent {
       ...this.config.livekit.voice,
       ...config,
     }
-    
+
     // Update adapter config
     if (this.adapter && 'updateConfig' in this.adapter) {
       (this.adapter as LiveKitAdapter).updateConfig({ voice: this.config.livekit.voice })
@@ -146,7 +160,7 @@ export class Agent {
       logger.warn('Cannot sync config: not connected')
       return
     }
-    
+
     // Send config update via the pipeline's data channel
     if (this.pipeline && 'sendConfigUpdate' in this.pipeline) {
       (this.pipeline as AgentPipeline & { sendConfigUpdate: (type: string, config: unknown) => void })
@@ -162,17 +176,28 @@ export class Agent {
   }
 
   /**
-   * Update voice settings mid-conversation (voice, speed, language)
+   * Update voice settings mid-conversation (TTS and STT)
    * This is a convenience method for common voice updates
    */
   updateVoiceLive(options: {
+    // TTS options
+    tts_provider?: string
+    tts_model?: string
+    tts_voice?: string
+    tts_speed?: number
+    // STT options
+    stt_provider?: string
+    stt_model?: string
+    stt_language?: string
+    // Legacy aliases
     voice?: string
     speed?: number
     language?: string
     model?: string
   }): void {
+    logger.info('🔊 updateVoiceLive called with:', options)
+    logger.info('🔌 Pipeline connected:', this.pipeline?.isConnected() ?? false)
     this.syncConfigToBackend('voice', options)
-    logger.info('Voice settings updated live', options)
   }
 
   /**
@@ -184,8 +209,9 @@ export class Agent {
     model?: string
     temperature?: number
   }): void {
+    logger.info('🧠 updateLlmLive called with:', options)
+    logger.info('🔌 Pipeline connected:', this.pipeline?.isConnected() ?? false)
     this.syncConfigToBackend('llm', options)
-    logger.info('LLM settings updated live', options)
   }
 
   // ---------------------------------------------------------------------------
@@ -292,13 +318,13 @@ export class Agent {
    */
   updateConfig(config: Partial<AgentConfig>): void {
     this.config = { ...this.config, ...config }
-    
+
     // Reinitialize adapter if adapter type changed
     if (config.adapter) {
       this.adapter?.dispose()
       this.initAdapter()
     }
-    
+
     // Update adapter config for livekit changes
     if (config.livekit && this.adapter && 'updateConfig' in this.adapter) {
       (this.adapter as LiveKitAdapter).updateConfig(config.livekit)
@@ -313,5 +339,41 @@ export class Agent {
     this.adapter?.dispose()
     this.pipeline = null
     this.adapter = null
+  }
+
+  // ---------------------------------------------------------------------------
+  // Tooling
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Register a client-side tool that the agent can call
+   */
+  registerTool(
+    name: string,
+    handler: (args: Record<string, unknown>) => Promise<unknown>
+  ): void {
+    this.clientTools.set(name, handler)
+    logger.info(`Registered client tool: ${name}`)
+  }
+
+  /**
+   * Handle dynamic tool execution
+   */
+  private async handleToolExecution(name: string, args: Record<string, unknown>): Promise<string> {
+    const handler = this.clientTools.get(name)
+    if (!handler) {
+      throw new Error(`Tool not found: ${name}`)
+    }
+
+    try {
+      logger.info(`Executing tool ${name} with args:`, args)
+      const result = await handler(args)
+
+      if (typeof result === 'string') return result
+      return JSON.stringify(result)
+    } catch (error) {
+      logger.error(`Error executing tool ${name}:`, error)
+      return `Error: ${error instanceof Error ? error.message : String(error)}`
+    }
   }
 }

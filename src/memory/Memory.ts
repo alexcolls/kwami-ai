@@ -1,53 +1,26 @@
-import type { MemoryConfig, MemoryAdapter, MemoryContext, MemorySearchResult } from '../types'
-import { ZepAdapter } from './adapters/ZepAdapter'
+import type { MemoryConfig, MemoryContext, MemorySearchResult } from '../types'
 import { logger } from '../utils/logger'
 
 /**
  * Memory - Manages long-term memory for the AI companion
  * 
- * Supports different memory backends:
- * - Zep Cloud (recommended for production)
- * - Local (in-memory, for development)
+ * Note: Memory logic effectively moved to backend. This class is kept for compatibility
+ * but essentially does nothing in the frontend now.
  */
 export class Memory {
   private config: MemoryConfig
-  private adapter: MemoryAdapter | null = null
   private initialized = false
 
   constructor(config?: MemoryConfig) {
     this.config = config ?? {}
-    this.initAdapter()
-  }
-
-  private initAdapter(): void {
-    const adapterType = this.config.adapter ?? 'zep'
-    
-    switch (adapterType) {
-      case 'zep':
-        this.adapter = new ZepAdapter(this.config.zep)
-        break
-      case 'local':
-        // TODO: Implement LocalAdapter for development
-        logger.warn('Local memory adapter not implemented, using Zep')
-        this.adapter = new ZepAdapter(this.config.zep)
-        break
-      default:
-        logger.warn(`Unknown memory adapter: ${adapterType}, falling back to Zep`)
-        this.adapter = new ZepAdapter(this.config.zep)
-    }
   }
 
   /**
    * Initialize memory for a user
    */
   async initialize(userId: string): Promise<void> {
-    if (!this.adapter) {
-      throw new Error('No memory adapter configured')
-    }
-    
-    await this.adapter.initialize(userId)
     this.initialized = true
-    logger.info(`Memory initialized for user: ${userId}`)
+    logger.info(`Memory initialized (frontend stub) for user: ${userId}`)
   }
 
   /**
@@ -60,41 +33,29 @@ export class Memory {
   /**
    * Add a message to memory
    */
-  async addMessage(role: 'user' | 'assistant', content: string): Promise<void> {
-    if (!this.adapter) {
-      throw new Error('No memory adapter configured')
-    }
-    await this.adapter.addMessage(role, content)
+  async addMessage(_role: 'user' | 'assistant', _content: string): Promise<void> {
+    // No-op - backend handles this via the agent loop
   }
 
   /**
    * Get memory context for the current conversation
    */
   async getContext(): Promise<MemoryContext> {
-    if (!this.adapter) {
-      throw new Error('No memory adapter configured')
-    }
-    return this.adapter.getContext()
+    return {}
   }
 
   /**
    * Search memory for relevant context
    */
-  async search(query: string, limit?: number): Promise<MemorySearchResult[]> {
-    if (!this.adapter) {
-      throw new Error('No memory adapter configured')
-    }
-    return this.adapter.search(query, limit)
+  async search(_query: string, _limit?: number): Promise<MemorySearchResult[]> {
+    return []
   }
 
   /**
    * Clear all memory
    */
   async clear(): Promise<void> {
-    if (!this.adapter) {
-      throw new Error('No memory adapter configured')
-    }
-    await this.adapter.clear()
+    // No-op
   }
 
   /**
@@ -108,8 +69,6 @@ export class Memory {
    * Cleanup resources
    */
   dispose(): void {
-    this.adapter?.dispose()
-    this.adapter = null
     this.initialized = false
   }
 }

@@ -4,7 +4,8 @@ import type {
   RemoteParticipant,
   LocalParticipant,
   DataPacket_Kind,
-  LocalAudioTrack} from 'livekit-client';
+  LocalAudioTrack
+} from 'livekit-client';
 import {
   Room,
   RoomEvent,
@@ -12,7 +13,7 @@ import {
   ConnectionState,
   createLocalTracks
 } from 'livekit-client'
-import type { AgentPipeline, PipelineConnectOptions } from '../../types'
+import type { AgentPipeline, PipelineConnectOptions, ToolExecutor } from '../../types'
 import type { AgentAdapter, LiveKitAdapterConfig } from './types'
 import type { VoiceLatencyMetrics, VoicePipelineMetrics } from '../voice/types'
 import { VoiceSession } from '../voice/VoiceSession'
@@ -37,7 +38,7 @@ export class LiveKitAdapter implements AgentAdapter {
 
   constructor(config?: LiveKitAdapterConfig) {
     this.config = config ?? {}
-    
+
     // Initialize voice session with config
     this.voiceSession = new VoiceSession({
       pipeline: this.config.voice,
@@ -80,7 +81,7 @@ export class LiveKitAdapter implements AgentAdapter {
    */
   updateConfig(config: Partial<LiveKitAdapterConfig>): void {
     this.config = { ...this.config, ...config }
-    
+
     // Update voice session if voice config changed
     if (config.voice) {
       this.voiceSession.updateConfig(config.voice)
@@ -99,7 +100,9 @@ export class LiveKitAdapter implements AgentAdapter {
  * Data message types from the backend agent
  */
 interface AgentDataMessage {
-  type: 'transcript' | 'agent_text' | 'state' | 'error' | 'metrics'
+  type: 'transcript' | 'agent_text' | 'state' | 'error' | 'metrics' | 'tool_call'
+  toolCallId?: string
+  function?: { name: string; arguments: string }
   transcript?: string
   text?: string
   isFinal?: boolean
@@ -119,38 +122,43 @@ class LiveKitPipeline implements AgentPipeline {
   private room: Room | null = null
   private localAudioTrack: LocalAudioTrack | null = null
   private agentAudioStream: MediaStream | null = null
-  
+
   // Timestamps for latency tracking
   private sttStartTime = 0
   private llmStartTime = 0
   private ttsStartTime = 0
   private turnStartTime = 0
-  
+
   // Callbacks
   private userSpeechCb?: (transcript: string) => void
   private agentTextCb?: (text: string) => void
   private interimTranscriptCb?: (text: string) => void
   private onAgentAudioStreamCb?: (stream: MediaStream) => void
+  private toolExecutor?: ToolExecutor
 
   constructor(config: LiveKitAdapterConfig, voiceSession: VoiceSession) {
     this.config = config
     this.voiceSession = voiceSession
   }
 
+  setToolExecutor(executor: ToolExecutor): void {
+    this.toolExecutor = executor
+  }
+
   async connect(options: PipelineConnectOptions): Promise<void> {
     logger.info('LiveKit pipeline connecting...')
-    
+
     // Get token
     let token = this.config.token
-    
+
     if (!token && this.config.tokenEndpoint) {
       token = await this.fetchToken()
     }
-    
+
     if (!token) {
       throw new Error('No LiveKit token available. Provide token or tokenEndpoint.')
     }
-    
+
     const serverUrl = this.config.url
     if (!serverUrl) {
       throw new Error('No LiveKit server URL configured.')
@@ -179,7 +187,7 @@ class LiveKitPipeline implements AgentPipeline {
       await this.room.connect(serverUrl, token, {
         autoSubscribe: this.config.autoSubscribe ?? true,
       })
-      
+
       logger.info(`Connected to LiveKit room: ${this.room.name}`)
 
       // Publish local audio track (microphone)
@@ -208,7 +216,7 @@ class LiveKitPipeline implements AgentPipeline {
     // Connection state changes
     this.room.on(RoomEvent.ConnectionStateChanged, (state: ConnectionState) => {
       logger.debug('Connection state changed:', state)
-      
+
       if (state === ConnectionState.Disconnected) {
         this.voiceSession.setState('idle')
       }
@@ -221,28 +229,29 @@ class LiveKitPipeline implements AgentPipeline {
       participant: RemoteParticipant
     ) => {
       logger.debug(`Track subscribed: ${track.kind} from ${participant.identity}`)
-      
+
       if (track.kind === Track.Kind.Audio) {
         // Only play audio from the agent participant, not other users
-        // Agent identity typically starts with 'agent' or contains it
-        const isAgent = participant.identity.toLowerCase().includes('agent') ||
-                        participant.identity.toLowerCase().startsWith('kwami')
-        
+        // Agent identity is 'agent-...' or similar, NOT 'kwami-user-...'
+        const identity = participant.identity.toLowerCase()
+        const isAgent = identity.startsWith('agent') ||
+          (identity.includes('kwami') && !identity.includes('user'))
+
         if (!isAgent) {
           logger.debug(`Skipping audio from non-agent participant: ${participant.identity}`)
           return
         }
-        
+
         // This is the agent's audio response
         // Attach to an audio element to play it
         const audioElement = track.attach()
         audioElement.id = 'kwami-agent-audio'
-        
+
         document.body.appendChild(audioElement)
-        
+
         // Connect agent audio to the avatar's audio analyzer for visualization
         this.connectAgentAudioToAvatar(track)
-        
+
         // Update state to speaking when agent audio plays
         audioElement.onplay = () => {
           this.voiceSession.setState('speaking')
@@ -279,7 +288,7 @@ class LiveKitPipeline implements AgentPipeline {
         const decoder = new TextDecoder()
         const jsonStr = decoder.decode(payload)
         const data: AgentDataMessage = JSON.parse(jsonStr)
-        
+
         this.handleAgentData(data)
       } catch (error) {
         logger.error('Failed to parse data message:', error)
@@ -337,10 +346,10 @@ class LiveKitPipeline implements AgentPipeline {
       if (mediaStreamTrack) {
         // Create a MediaStream containing the agent's audio
         this.agentAudioStream = new MediaStream([mediaStreamTrack])
-        
+
         // Notify any listeners that agent audio is available
         this.onAgentAudioStreamCb?.(this.agentAudioStream)
-        
+
         logger.debug('Connected agent audio to avatar visualization')
       }
     } catch (error) {
@@ -393,6 +402,30 @@ class LiveKitPipeline implements AgentPipeline {
         // Error from agent
         logger.error('Agent error:', data.error)
         break
+
+      case 'tool_call':
+        // Handle dynamic tool call from agent
+        if (data.toolCallId && data.function && this.toolExecutor) {
+          const { toolCallId, function: fn } = data
+
+          let args: Record<string, unknown> = {}
+          try {
+            args = JSON.parse(fn.arguments)
+          } catch (e) {
+            logger.error('Failed to parse tool arguments', fn.arguments)
+          }
+
+          this.toolExecutor(fn.name, args)
+            .then(result => {
+              this.sendToolResult(toolCallId, result)
+            })
+            .catch(err => {
+              this.sendToolResult(toolCallId, '', String(err))
+            })
+        } else {
+          logger.warn('Received tool_call but no executor configured or missing data', data)
+        }
+        break
     }
   }
 
@@ -435,7 +468,8 @@ class LiveKitPipeline implements AgentPipeline {
     const configMessage = {
       type: 'config',
       // Unique identifiers for this Kwami instance
-      kwamiId: options.kwamiId,
+      // Use options.kwamiId, or fall back to config.userId for memory persistence
+      kwamiId: options.kwamiId ?? this.config.userId,
       kwamiName: options.kwamiName,
       // Voice pipeline configuration (STT, LLM, TTS, etc.)
       voice: options.voice ?? this.voiceSession.toLiveKitConfig(),
@@ -449,20 +483,24 @@ class LiveKitPipeline implements AgentPipeline {
 
     const encoder = new TextEncoder()
     const data = encoder.encode(JSON.stringify(configMessage))
-    
+
+    // Log detailed config being sent
+    logger.info('📤 Sending config to agent:', {
+      kwamiId: options.kwamiId,
+      kwamiName: options.kwamiName,
+      voice: configMessage.voice,
+    })
+
     await this.room.localParticipant.publishData(data, {
       reliable: true,
     })
-    
-    logger.debug('Sent Kwami config to agent:', {
-      kwamiId: options.kwamiId,
-      kwamiName: options.kwamiName,
-    })
+
+    logger.info('✅ Config sent to agent')
   }
 
   async disconnect(): Promise<void> {
     logger.info('LiveKit pipeline disconnecting...')
-    
+
     // Stop local audio track
     if (this.localAudioTrack) {
       this.localAudioTrack.stop()
@@ -618,29 +656,58 @@ class LiveKitPipeline implements AgentPipeline {
    * Allows changing persona, voice settings, or tools without reconnecting
    */
   sendConfigUpdate(type: string, config: unknown): void {
+    logger.info(`📤 sendConfigUpdate called: type=${type}`)
+    logger.info(`📤 Room exists: ${!!this.room}`)
+    logger.info(`📤 Room connected: ${this.room?.state}`)
+
     if (!this.room) {
-      logger.warn('Cannot send config update: not connected')
+      logger.warn('Cannot send config update: room not available')
       return
     }
 
     const message = {
       type: 'config_update',
-      updateType: type,  // 'voice' | 'persona' | 'tools' | 'full'
+      updateType: type,  // 'voice' | 'persona' | 'tools' | 'full' | 'llm'
       config,
       timestamp: Date.now(),
     }
 
+    logger.info(`📤 Sending message:`, message)
+
     const encoder = new TextEncoder()
     const data = encoder.encode(JSON.stringify(message))
-    
+
     this.room.localParticipant.publishData(data, { reliable: true })
-    logger.debug(`Sent ${type} config update to agent`)
+      .then(() => {
+        logger.info(`✅ Successfully sent ${type} config update to agent`)
+      })
+      .catch((err) => {
+        logger.error(`❌ Failed to send ${type} config update:`, err)
+      })
+  }
+
+  /**
+   * Send tool execution result back to backend
+   */
+  private sendToolResult(toolCallId: string, result: string, error?: string): void {
+    if (!this.room) return
+
+    const message = {
+      type: 'tool_result',
+      toolCallId,
+      result,
+      error
+    }
+
+    const encoder = new TextEncoder()
+    const data = encoder.encode(JSON.stringify(message))
+    this.room.localParticipant.publishData(data, { reliable: true })
   }
 
   interrupt(): void {
     logger.info('Interrupting agent...')
     this.voiceSession.triggerInterruption()
-    
+
     // Send interrupt signal via data channel
     if (this.room) {
       const encoder = new TextEncoder()
@@ -651,13 +718,13 @@ class LiveKitPipeline implements AgentPipeline {
 
   sendText(text: string): void {
     logger.info('Sending text to agent:', text)
-    
+
     // Send text via data channel
     if (this.room) {
       const encoder = new TextEncoder()
       const data = encoder.encode(JSON.stringify({ type: 'text', text }))
       this.room.localParticipant.publishData(data, { reliable: true })
-      
+
       // Also trigger as user speech
       this.userSpeechCb?.(text)
     }
@@ -677,7 +744,17 @@ class LiveKitPipeline implements AgentPipeline {
     }
 
     const roomName = this.config.roomName || `kwami-room-${Date.now()}`
-    const participantName = `kwami-user-${Date.now()}`
+    
+    // Use configured userId, or get/create persistent ID from localStorage
+    let participantName = this.config.userId
+    if (!participantName) {
+      const storageKey = 'kwami-user-id'
+      participantName = localStorage.getItem(storageKey) ?? undefined
+      if (!participantName) {
+        participantName = `kwami-user-${Date.now()}`
+        localStorage.setItem(storageKey, participantName)
+      }
+    }
 
     const response = await fetch(this.config.tokenEndpoint, {
       method: 'POST',
@@ -695,12 +772,12 @@ class LiveKitPipeline implements AgentPipeline {
     }
 
     const data = await response.json()
-    
+
     // Update room name from response if provided
     if (data.room_name) {
       this.config.roomName = data.room_name
     }
-    
+
     return data.token
   }
 

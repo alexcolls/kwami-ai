@@ -65,6 +65,14 @@ export class Blob {
   // Custom double-click callback
   public onDoubleClick?: () => void | Promise<void>
 
+  // Right-click callbacks
+  public onRightClick?: () => void | Promise<void>
+  public onDoubleRightClick?: () => void | Promise<void>
+
+  // Right-click tracking
+  private lastRightClickTime = 0
+  private rightClickTimeout: number | null = null
+
   // Listening mode
   public isListening = false
   private listeningTransition = 0
@@ -628,6 +636,90 @@ export class Blob {
   }
 
   /**
+   * Set touch strength
+   */
+  setTouchStrength(strength: number): void {
+    this.touchStrength = strength
+  }
+
+  /**
+   * Get touch strength
+   */
+  getTouchStrength(): number {
+    return this.touchStrength
+  }
+
+  /**
+   * Set touch duration in milliseconds
+   */
+  setTouchDuration(duration: number): void {
+    this.touchDuration = duration
+  }
+
+  /**
+   * Get touch duration
+   */
+  getTouchDuration(): number {
+    return this.touchDuration
+  }
+
+  /**
+   * Set maximum touch points
+   */
+  setMaxTouchPoints(max: number): void {
+    this.maxTouchPoints = max
+  }
+
+  /**
+   * Get maximum touch points
+   */
+  getMaxTouchPoints(): number {
+    return this.maxTouchPoints
+  }
+
+  /**
+   * Set transition speed for state changes
+   */
+  setTransitionSpeed(speed: number): void {
+    this.transitionSpeed = speed
+  }
+
+  /**
+   * Get transition speed
+   */
+  getTransitionSpeed(): number {
+    return this.transitionSpeed
+  }
+
+  /**
+   * Set thinking duration in milliseconds
+   */
+  setThinkingDuration(duration: number): void {
+    this.thinkingDuration = duration
+  }
+
+  /**
+   * Get thinking duration
+   */
+  getThinkingDuration(): number {
+    return this.thinkingDuration
+  }
+
+  /**
+   * Set right-click callback
+   */
+  setRightClickCallback(callback: () => void | Promise<void>): void {
+    this.onRightClick = callback
+  }
+
+  /**
+   * Set double right-click callback
+   */
+  setDoubleRightClickCallback(callback: () => void | Promise<void>): void {
+    this.onDoubleRightClick = callback
+  }
+
+  /**
    * Initialize tricolor lights
    */
   private initializeLights(): void {
@@ -828,7 +920,46 @@ export class Blob {
       }
     }
 
+    const handleContextMenu = async (event: MouseEvent) => {
+      event.preventDefault()
+
+      const rect = canvas.getBoundingClientRect()
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+      raycaster.setFromCamera(mouse, this.options.camera)
+
+      const intersects = raycaster.intersectObject(this.mesh)
+
+      if (intersects.length > 0) {
+        const now = Date.now()
+        const DOUBLE_CLICK_THRESHOLD = 300 // ms
+
+        if (now - this.lastRightClickTime < DOUBLE_CLICK_THRESHOLD) {
+          // Double right-click detected
+          if (this.rightClickTimeout) {
+            clearTimeout(this.rightClickTimeout)
+            this.rightClickTimeout = null
+          }
+          if (this.onDoubleRightClick) {
+            await this.onDoubleRightClick()
+          }
+        } else {
+          // Potential single right-click, wait to see if it's a double
+          this.rightClickTimeout = window.setTimeout(async () => {
+            if (this.onRightClick) {
+              await this.onRightClick()
+            }
+            this.rightClickTimeout = null
+          }, DOUBLE_CLICK_THRESHOLD)
+        }
+
+        this.lastRightClickTime = now
+      }
+    }
+
     const handleMouseDown = (event: MouseEvent) => {
+      if (event.button === 2) return // Ignore right-click for drag
       isDragging = true
       previousMousePosition = {
         x: event.clientX,
@@ -860,6 +991,7 @@ export class Blob {
 
     canvas.addEventListener('click', handleClick)
     canvas.addEventListener('dblclick', handleDoubleClick)
+    canvas.addEventListener('contextmenu', handleContextMenu)
     canvas.addEventListener('mousedown', handleMouseDown)
     canvas.addEventListener('mousemove', handleMouseMove)
     canvas.addEventListener('mouseup', handleMouseUp)
@@ -868,6 +1000,7 @@ export class Blob {
     // Store handlers for cleanup
     ;(this as unknown as Record<string, unknown>)._clickHandler = handleClick
     ;(this as unknown as Record<string, unknown>)._dblClickHandler = handleDoubleClick
+    ;(this as unknown as Record<string, unknown>)._contextMenuHandler = handleContextMenu
     ;(this as unknown as Record<string, unknown>)._mouseDownHandler = handleMouseDown
     ;(this as unknown as Record<string, unknown>)._mouseMoveHandler = handleMouseMove
     ;(this as unknown as Record<string, unknown>)._mouseUpHandler = handleMouseUp
@@ -893,6 +1026,11 @@ export class Blob {
       delete handlers._dblClickHandler
     }
 
+    if (handlers._contextMenuHandler) {
+      canvas.removeEventListener('contextmenu', handlers._contextMenuHandler)
+      delete handlers._contextMenuHandler
+    }
+
     if (handlers._mouseDownHandler) {
       canvas.removeEventListener('mousedown', handlers._mouseDownHandler)
       delete handlers._mouseDownHandler
@@ -907,6 +1045,12 @@ export class Blob {
       canvas.removeEventListener('mouseup', handlers._mouseUpHandler)
       canvas.removeEventListener('mouseleave', handlers._mouseUpHandler)
       delete handlers._mouseUpHandler
+    }
+
+    // Clean up right-click timeout
+    if (this.rightClickTimeout) {
+      clearTimeout(this.rightClickTimeout)
+      this.rightClickTimeout = null
     }
 
     if (this.isListening) {

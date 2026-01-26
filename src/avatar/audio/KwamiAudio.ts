@@ -404,6 +404,8 @@ export class KwamiAudio {
 
   /**
    * Connect a MediaStream (e.g., from LiveKit) to the audio analyzer
+   * Note: This is for VISUALIZATION ONLY - audio playback is handled by the audio element
+   * We do NOT connect to audioContext.destination to avoid echo/double playback
    */
   async connectMediaStream(stream: MediaStream): Promise<void> {
     if (!this.audioContext) {
@@ -425,7 +427,8 @@ export class KwamiAudio {
       this.analyser.smoothingTimeConstant = 0.35
       this.analyser.minDecibels = -90
       this.analyser.maxDecibels = -10
-      this.analyser.connect(this.audioContext.destination)
+      // DO NOT connect to destination - this causes echo!
+      // The audio element handles playback, analyser is only for visualization
       this.frequencyData = new Uint8Array(this.analyser.frequencyBinCount)
     }
 
