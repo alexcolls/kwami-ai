@@ -235,8 +235,9 @@ export class Kwami {
 
       // Connect agent with full Kwami config
       // This dispatches a unique agent instance on LiveKit
+      // Use userId for kwamiId to ensure memory persistence across sessions
       await this.agent.connect({
-        kwamiId: this.id,
+        kwamiId: this.userId,
         kwamiName: this.persona.getName(),
         persona: {
           systemPrompt,
@@ -247,7 +248,7 @@ export class Kwami {
       })
 
       this.setState('listening')
-      logger.info(`Kwami "${this.persona.getName()}" (${this.id}) connected`)
+      logger.info(`Kwami "${this.persona.getName()}" (${this.id}) connected with userId: ${this.userId}`)
     } catch (error) {
       logger.error(`Kwami "${this.id}" failed to connect:`, error)
       this.setState('idle')

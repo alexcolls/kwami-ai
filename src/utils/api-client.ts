@@ -7,6 +7,10 @@ export interface MemoryNode {
     label: string
     type: string
     val?: number
+    summary?: string
+    uuid?: string
+    created_at?: string
+    labels?: string[]
 }
 
 export interface MemoryEdge {
