@@ -76,7 +76,18 @@ export class Crystal {
 
   // Conversation callback
   public onConversationToggle?: () => Promise<void>
+
+  // Click callbacks
+  public onClick?: () => void | Promise<void>
   public onDoubleClick?: () => void | Promise<void>
+
+  // Right-click callbacks
+  public onRightClick?: () => void | Promise<void>
+  public onDoubleRightClick?: () => void | Promise<void>
+
+  // Right-click tracking
+  private lastRightClickTime = 0
+  private rightClickTimeout: number | null = null
 
   // State management
   public isListening = false
@@ -546,7 +557,7 @@ export class Crystal {
     const raycaster = new Raycaster()
     const mouse = new Vector2()
 
-    const handleClick = (event: MouseEvent) => {
+    const handleClick = async (event: MouseEvent) => {
       const rect = canvas.getBoundingClientRect()
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
@@ -560,6 +571,11 @@ export class Crystal {
       if (intersects.length > 0) {
         // Visual feedback - pulse effect
         this.triggerPulse()
+
+        // Execute custom click callback if set
+        if (this.onClick) {
+          await this.onClick()
+        }
       }
     }
 
@@ -590,12 +606,53 @@ export class Crystal {
       }
     }
 
+    const handleContextMenu = async (event: MouseEvent) => {
+      event.preventDefault()
+
+      const rect = canvas.getBoundingClientRect()
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+      raycaster.setFromCamera(mouse, this.options.camera)
+
+      const objects = [this.core, this.glow, ...this.shards.map(s => s.mesh)]
+      const intersects = raycaster.intersectObjects(objects)
+
+      if (intersects.length > 0) {
+        const now = Date.now()
+        const DOUBLE_CLICK_THRESHOLD = 300 // ms
+
+        if (now - this.lastRightClickTime < DOUBLE_CLICK_THRESHOLD) {
+          // Double right-click detected
+          if (this.rightClickTimeout) {
+            clearTimeout(this.rightClickTimeout)
+            this.rightClickTimeout = null
+          }
+          if (this.onDoubleRightClick) {
+            await this.onDoubleRightClick()
+          }
+        } else {
+          // Potential single right-click, wait to see if it's a double
+          this.rightClickTimeout = window.setTimeout(async () => {
+            if (this.onRightClick) {
+              await this.onRightClick()
+            }
+            this.rightClickTimeout = null
+          }, DOUBLE_CLICK_THRESHOLD)
+        }
+
+        this.lastRightClickTime = now
+      }
+    }
+
     canvas.addEventListener('click', handleClick)
     canvas.addEventListener('dblclick', handleDoubleClick)
+    canvas.addEventListener('contextmenu', handleContextMenu)
 
     // Store handlers for cleanup
     ;(this as unknown as Record<string, unknown>)._clickHandler = handleClick
     ;(this as unknown as Record<string, unknown>)._dblClickHandler = handleDoubleClick
+    ;(this as unknown as Record<string, unknown>)._contextMenuHandler = handleContextMenu
   }
 
   /**
@@ -618,9 +675,41 @@ export class Crystal {
       delete handlers._dblClickHandler
     }
 
+    if (handlers._contextMenuHandler) {
+      canvas.removeEventListener('contextmenu', handlers._contextMenuHandler)
+      delete handlers._contextMenuHandler
+    }
+
+    // Clean up right-click timeout
+    if (this.rightClickTimeout) {
+      clearTimeout(this.rightClickTimeout)
+      this.rightClickTimeout = null
+    }
+
     if (this.isListening) {
       this.stopListening()
     }
+  }
+
+  /**
+   * Set click callback
+   */
+  setClickCallback(callback: () => void | Promise<void>): void {
+    this.onClick = callback
+  }
+
+  /**
+   * Set right-click callback
+   */
+  setRightClickCallback(callback: () => void | Promise<void>): void {
+    this.onRightClick = callback
+  }
+
+  /**
+   * Set double right-click callback
+   */
+  setDoubleRightClickCallback(callback: () => void | Promise<void>): void {
+    this.onDoubleRightClick = callback
   }
 
   /**

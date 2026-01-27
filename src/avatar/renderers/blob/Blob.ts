@@ -62,7 +62,8 @@ export class Blob {
   // Conversation callback
   public onConversationToggle?: () => Promise<void>
 
-  // Custom double-click callback
+  // Custom click callbacks
+  public onClick?: () => void | Promise<void>
   public onDoubleClick?: () => void | Promise<void>
 
   // Right-click callbacks
@@ -706,6 +707,13 @@ export class Blob {
   }
 
   /**
+   * Set click callback
+   */
+  setClickCallback(callback: () => void | Promise<void>): void {
+    this.onClick = callback
+  }
+
+  /**
    * Set right-click callback
    */
   setRightClickCallback(callback: () => void | Promise<void>): void {
@@ -866,7 +874,7 @@ export class Blob {
     let isDragging = false
     let previousMousePosition = { x: 0, y: 0 }
 
-    const handleClick = (event: MouseEvent) => {
+    const handleClick = async (event: MouseEvent) => {
       const rect = canvas.getBoundingClientRect()
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
@@ -890,6 +898,11 @@ export class Blob {
             startTime: Date.now(),
             duration: this.touchDuration,
           })
+
+          // Execute custom click callback if set
+          if (this.onClick) {
+            await this.onClick()
+          }
         }
       }
     }
