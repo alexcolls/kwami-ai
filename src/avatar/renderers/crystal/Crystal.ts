@@ -569,12 +569,12 @@ export class Crystal {
       const intersects = raycaster.intersectObjects(objects)
 
       if (intersects.length > 0) {
-        // Visual feedback - pulse effect
-        this.triggerPulse()
-
-        // Execute custom click callback if set
+        // Execute custom click callback if set, otherwise do default pulse
         if (this.onClick) {
           await this.onClick()
+        } else {
+          // Default behavior: visual feedback - pulse effect
+          this.triggerPulse()
         }
       }
     }
@@ -715,7 +715,7 @@ export class Crystal {
   /**
    * Trigger a visual pulse effect
    */
-  private triggerPulse(): void {
+  triggerPulse(): void {
     // Temporarily boost glow
     const originalIntensity = this.coreConfig.glowIntensity
     this.setGlowIntensity(originalIntensity * 2)

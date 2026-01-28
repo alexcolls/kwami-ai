@@ -310,6 +310,8 @@ export interface LiveKitConfig {
   roomName?: string
   /** User ID for persistent identity (used for memory recall) */
   userId?: string
+  /** Auth token for API authentication (e.g., Supabase JWT) */
+  authToken?: string
 
   // ---------------------------------------------------------------------------
   // Voice Pipeline Configuration

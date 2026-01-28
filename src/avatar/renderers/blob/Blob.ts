@@ -714,6 +714,22 @@ export class Blob {
   }
 
   /**
+   * Trigger a visual pulse effect at the center of the blob
+   */
+  triggerPulse(): void {
+    if (this.touchPoints.length >= this.maxTouchPoints) {
+      this.touchPoints.shift()
+    }
+
+    this.touchPoints.push({
+      position: this.mesh.position.clone(),
+      strength: this.touchStrength,
+      startTime: Date.now(),
+      duration: this.touchDuration,
+    })
+  }
+
+  /**
    * Set right-click callback
    */
   setRightClickCallback(callback: () => void | Promise<void>): void {
@@ -886,22 +902,23 @@ export class Blob {
       if (intersects.length > 0) {
         const intersect = intersects[0]
         if (intersect.point) {
-          const localPoint = this.mesh.worldToLocal(intersect.point.clone())
-
-          if (this.touchPoints.length >= this.maxTouchPoints) {
-            this.touchPoints.shift()
-          }
-
-          this.touchPoints.push({
-            position: localPoint,
-            strength: this.touchStrength,
-            startTime: Date.now(),
-            duration: this.touchDuration,
-          })
-
-          // Execute custom click callback if set
+          // Execute custom click callback if set, otherwise do default pulse
           if (this.onClick) {
             await this.onClick()
+          } else {
+            // Default behavior: add touch point for visual pulse
+            const localPoint = this.mesh.worldToLocal(intersect.point.clone())
+
+            if (this.touchPoints.length >= this.maxTouchPoints) {
+              this.touchPoints.shift()
+            }
+
+            this.touchPoints.push({
+              position: localPoint,
+              strength: this.touchStrength,
+              startTime: Date.now(),
+              duration: this.touchDuration,
+            })
           }
         }
       }

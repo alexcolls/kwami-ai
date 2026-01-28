@@ -756,11 +756,17 @@ class LiveKitPipeline implements AgentPipeline {
       }
     }
 
+    // Build headers with optional auth token
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+    if (this.config.authToken) {
+      headers['Authorization'] = `Bearer ${this.config.authToken}`
+    }
+
     const response = await fetch(this.config.tokenEndpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         room_name: roomName,
         participant_name: participantName,
