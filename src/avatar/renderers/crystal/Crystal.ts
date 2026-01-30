@@ -518,6 +518,32 @@ export class Crystal {
     }
   }
 
+  /**
+   * Set light position for shader lighting
+   */
+  setLightPosition(x: number, y: number, z: number): void {
+    // Scale down for crystal's smaller scale
+    const scaledX = x / 200
+    const scaledY = y / 200
+    const scaledZ = z / 200
+
+    if (this.materials.shardMaterial.uniforms.uLightPosition) {
+      this.materials.shardMaterial.uniforms.uLightPosition.value = { x: scaledX, y: scaledY, z: scaledZ }
+      this.materials.shardMaterial.needsUpdate = true
+    }
+  }
+
+  /**
+   * Get current light position
+   */
+  getLightPosition(): { x: number; y: number; z: number } {
+    if (this.materials.shardMaterial.uniforms.uLightPosition) {
+      const pos = this.materials.shardMaterial.uniforms.uLightPosition.value
+      return { x: pos.x * 200, y: pos.y * 200, z: pos.z * 200 }
+    }
+    return { x: 1000, y: 1000, z: 1000 }
+  }
+
   private initializeLights(): void {
     const primary = new PointLight(new Color(this.colors.primary).getHex(), this.lightIntensity, 15)
     const secondary = new PointLight(new Color(this.colors.secondary).getHex(), this.lightIntensity * 0.7, 12)

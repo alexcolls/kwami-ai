@@ -637,6 +637,40 @@ export class Blob {
   }
 
   /**
+   * Set light position for shader lighting
+   */
+  setLightPosition(x: number, y: number, z: number): void {
+    const applyPosition = (material: ShaderMaterial) => {
+      if (!material.uniforms) return
+
+      if (Object.prototype.hasOwnProperty.call(material.uniforms, 'lightPosition')) {
+        material.uniforms.lightPosition.value.x = x
+        material.uniforms.lightPosition.value.y = y
+        material.uniforms.lightPosition.value.z = z
+        material.needsUpdate = true
+      }
+    }
+
+    this.skins.forEach(applyPosition)
+
+    if (this.mesh) {
+      applyPosition(this.mesh.material as ShaderMaterial)
+    }
+  }
+
+  /**
+   * Get current light position
+   */
+  getLightPosition(): { x: number; y: number; z: number } {
+    const material = this.mesh.material as ShaderMaterial
+    if (material.uniforms.lightPosition) {
+      const pos = material.uniforms.lightPosition.value
+      return { x: pos.x, y: pos.y, z: pos.z }
+    }
+    return { x: 1000, y: 2500, z: 200 } // default
+  }
+
+  /**
    * Set touch strength
    */
   setTouchStrength(strength: number): void {
