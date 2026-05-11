@@ -40,7 +40,7 @@
   "author": "Alex Colls",
   "license": "Apache-2.0",
   "dependencies": {
-    "livekit-client": "^2.6.0",
+    "livekit-client": "^2.18.9",
     "simplex-noise": "^4.0.3",
     "three": ">=0.160.0"
   },
@@ -50,12 +50,12 @@
     "@types/three": "^0.170.0",
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
-    "jiti": "2.6.1",
-    "prettier": "^3.4.2",
+    "jiti": "2.7.0",
+    "prettier": "^3.8.3",
     "typescript": "^5.7.0",
-    "typescript-eslint": "^8.20.0",
+    "typescript-eslint": "^8.59.2",
     "vite": "^6.0.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.5"
   },
   "peerDependencies": {
     "three": ">=0.160.0"
